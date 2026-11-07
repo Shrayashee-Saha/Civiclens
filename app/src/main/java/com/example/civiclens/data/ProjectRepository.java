@@ -90,18 +90,17 @@ public class ProjectRepository {
             c.additionalInfo = notes;
             c.createdAt = System.currentTimeMillis();
 
-            boolean isOffTopic = com.example.civiclens.service.NewsFetcher.isExcludedTopic(name + " " + url + " " + notes);
-            boolean isValidUrl = verifyUrlConnection(url);
+            boolean isVerified = verifyNewsContentAndLocation(name, url, district, upazila, notes);
 
-            if (!isOffTopic && isValidUrl) {
+            if (isVerified) {
                 c.status = "Verified Source - Approved";
                 dao.addContribution(c);
 
                 PublicProject p = new PublicProject();
                 p.id = "proj_" + c.id.substring(0, 8);
                 p.name = name;
-                p.agency = "Citizen Contributed (Verified)";
-                p.contractor = "Local Contractor / Directorate";
+                p.agency = "Citizen Contributed (Verified Source)";
+                p.contractor = "Local Directorate / Engineering Wing";
                 p.district = (district == null || district.isEmpty()) ? "Dhaka" : district;
                 p.upazila = (upazila == null || upazila.isEmpty()) ? "Sadar" : upazila;
                 p.category = "Infrastructure & Public Works";
@@ -111,7 +110,7 @@ public class ProjectRepository {
                 p.status = "Ongoing";
                 p.currentProgressPercent = 10;
                 p.plannedProgressPercent = 20;
-                p.sourceNote = "User Contributed & GNews Verified Source: " + url;
+                p.sourceNote = "User Contributed & Location/Keyword Verified: " + url;
                 p.lastUpdated = com.example.civiclens.domain.ProjectAnalyzer.todayIso();
                 p.fictional = false;
                 dao.insertProjects(java.util.Collections.singletonList(p));
@@ -125,8 +124,8 @@ public class ProjectRepository {
 
                 com.example.civiclens.notify.NotificationHelper.showProjectAlert(
                         appContext,
-                        "Project Source Verification Warning",
-                        "The news source for '" + name + "' could not be verified or contained off-topic content.",
+                        "Project Source Verification Failed",
+                        "The news URL for '" + name + "' could not be verified for district location (" + (district != null ? district : "N/A") + ") or project keywords.",
                         null
                 );
 
@@ -137,23 +136,79 @@ public class ProjectRepository {
         });
     }
 
-    private static boolean verifyUrlConnection(String urlString) {
+    public static boolean verifyNewsContentAndLocation(String name, String urlString, String district, String upazila, String notes) {
         if (urlString == null || urlString.trim().isEmpty()) return false;
-        try {
-            String clean = urlString.trim();
-            if (!clean.startsWith("http://") && !clean.startsWith("https://")) {
-                clean = "https://" + clean;
-            }
-            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(clean).openConnection();
-            conn.setRequestMethod("HEAD");
-            conn.setConnectTimeout(5000);
-            conn.setReadTimeout(5000);
-            int code = conn.getResponseCode();
-            conn.disconnect();
-            return code >= 200 && code < 400;
-        } catch (Exception ignored) {
+        String cleanUrl = urlString.trim();
+        if (!cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://")) {
+            cleanUrl = "https://" + cleanUrl;
+        }
+
+        String articleContent = fetchUrlContent(cleanUrl);
+        if (articleContent == null || articleContent.isEmpty()) {
             return false;
         }
+
+        String lowerContent = articleContent.toLowerCase(java.util.Locale.US);
+        String combinedInput = ((name != null ? name : "") + " " + (notes != null ? notes : "")).toLowerCase(java.util.Locale.US);
+
+        if (com.example.civiclens.service.NewsFetcher.isExcludedTopic(lowerContent) || com.example.civiclens.service.NewsFetcher.isExcludedTopic(combinedInput)) {
+            return false;
+        }
+
+        boolean locationFound = false;
+        if (district != null && !district.trim().isEmpty()) {
+            String cleanDistrict = district.trim().toLowerCase(java.util.Locale.US);
+            if (lowerContent.contains(cleanDistrict)) {
+                locationFound = true;
+            }
+        }
+        if (upazila != null && !upazila.trim().isEmpty()) {
+            String cleanUpazila = upazila.trim().toLowerCase(java.util.Locale.US);
+            if (lowerContent.contains(cleanUpazila)) {
+                locationFound = true;
+            }
+        }
+
+        if (district != null && !district.trim().isEmpty() && !locationFound) {
+            return false;
+        }
+
+        String[] infraKeywords = {"project", "road", "bridge", "construction", "expansion", "building", "power", "water", "hospital", "drainage", "embankment", "expressway", "infrastructure", "work", "repair"};
+        boolean topicFound = false;
+        for (String kw : infraKeywords) {
+            if (lowerContent.contains(kw) || combinedInput.contains(kw)) {
+                topicFound = true;
+                break;
+            }
+        }
+
+        return topicFound;
+    }
+
+    private static String fetchUrlContent(String urlString) {
+        try {
+            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(urlString).openConnection();
+            conn.setRequestMethod("GET");
+            conn.setConnectTimeout(6000);
+            conn.setReadTimeout(8000);
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+            int code = conn.getResponseCode();
+            if (code >= 200 && code < 300) {
+                java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream(), java.nio.charset.StandardCharsets.UTF_8));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                int readBytes = 0;
+                while ((line = reader.readLine()) != null && readBytes < 20000) {
+                    sb.append(line);
+                    readBytes += line.length();
+                }
+                reader.close();
+                conn.disconnect();
+                return com.example.civiclens.service.NewsFetcher.cleanPlainText(sb.toString());
+            }
+            conn.disconnect();
+        } catch (Exception ignored) { }
+        return null;
     }
 
     /**

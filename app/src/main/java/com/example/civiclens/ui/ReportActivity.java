@@ -339,12 +339,18 @@ public class ReportActivity extends AppCompatActivity {
             return null;
         }
 
+        String locationNote = text(locationInput);
+        if (com.example.civiclens.service.NewsFetcher.isExcludedTopic(description + " " + locationNote)) {
+            Toast.makeText(this, "⚠ Report contains off-topic content. Please report civic problems only.", Toast.LENGTH_LONG).show();
+            return null;
+        }
+
         CitizenReport r = new CitizenReport();
         r.id = UUID.randomUUID().toString();
         r.category = selectedCategoryKey();
         r.description = description;
         r.district = district;
-        r.locationNote = text(locationInput);
+        r.locationNote = locationNote;
         r.photoUri = photoUri;
         r.officeId = routedOffice == null ? null : routedOffice.id;
         r.officeName = routedOffice == null ? null : routedOffice.nameEn;
@@ -358,6 +364,18 @@ public class ReportActivity extends AppCompatActivity {
      * duplicate is flagged for review but still saved, and the citizen is told why.
      */
     private void checkAndSave(CitizenReport report, Consumer<CitizenReport> afterSave) {
+        boolean locationMentioned = report.description.toLowerCase(Locale.US).contains(report.district.toLowerCase(Locale.US))
+                || report.locationNote.toLowerCase(Locale.US).contains(report.district.toLowerCase(Locale.US));
+
+        if (!locationMentioned) {
+            com.example.civiclens.notify.NotificationHelper.showProjectAlert(
+                    this,
+                    "Report Location Context Alert",
+                    "Report for " + report.district + " does not explicitly mention the district name in description. Flagged for review.",
+                    null
+            );
+        }
+
         reportRepository.getScopedDescriptions(report.category, report.district, existing -> {
             boolean duplicate = DuplicateChecker.isLikelyDuplicate(report.description, existing);
             if (duplicate) {
