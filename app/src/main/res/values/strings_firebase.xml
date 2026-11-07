@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="firebase_not_configured">Sign-in is off. Add app/google-services.json to turn on Firebase.</string>
+    <string name="sign_in_title">Sign in to CivicLens</string>
+    <string name="name_hint">Your name (for sign-up)</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password (at least 6 characters)</string>
+    <string name="sign_in_button">Sign in</string>
+    <string name="sign_up_button">Create account</string>
+    <string name="skip_sign_in">Continue without an account</string>
+    <string name="auth_need_email_password">Enter an email and a password of at least 6 characters.</string>
+    <string name="auth_working">Please wait…</string>
+</resources>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bangla translations. Review by a native speaker before release. -->
+<resources>
+    <string name="hero_title">সিভিকলেন্স বিডিতে স্বাগতম</string>
+    <string name="quick_find">সেবা খুঁজুন</string>
+    <string name="quick_offices">অফিস</string>
+    <string name="quick_projects">প্রকল্প</string>
+    <string name="quick_saved">সংরক্ষিত</string>
+    <string name="results_title">সেবাসমূহ</string>
+    <string name="nav_settings">সেটিংস</string>
+
+    <string name="settings_title">সেটিংস</string>
+    <string name="setting_notifications">সময়সীমার অনুস্মারক</string>
+    <string name="setting_notifications_on">চালু। সংরক্ষিত সময়সীমার ৩ দিন আগে বিজ্ঞপ্তি পাবেন।</string>
+    <string name="setting_notifications_off">বন্ধ। অনুস্মারক বিজ্ঞপ্তি পাবেন না।</string>
+    <string name="setting_share">সিভিকলেন্স বিডি শেয়ার করুন</string>
+    <string name="setting_share_subtitle">যাদের দরকার তাদের কাছে অ্যাপটি পাঠান</string>
+    <string name="setting_language">ভাষা</string>
+    <string name="setting_language_subtitle">ফোনের ভাষা অনুসরণ করে। পরিবর্তন করতে ফোনের সেটিংসে যান।</string>
+    <string name="setting_about">তথ্য সম্পর্কে</string>
+    <string name="setting_about_subtitle">ডেমো তথ্য কী এবং যাচাই করা তথ্য কীভাবে পাবেন</string>
+    <string name="setting_version">অ্যাপের সংস্করণ</string>
+    <string name="setting_version_format">%1$s (ডেমো সংস্করণ)</string>
+    <string name="about_message">এই অ্যাপের বেশিরভাগ তথ্য ডেমো বা কাল্পনিক। ফি, প্রক্রিয়া, অফিসের তথ্য ও প্রকল্পের রেকর্ড যাচাই করা হয়নি। কাজ করার আগে সরকারি উৎসে নিশ্চিত হোন।</string>
+    <string name="share_message_app">আমি সরকারি সেবা খুঁজতে ও নথি প্রস্তুত করতে সিভিকলেন্স বিডি ব্যবহার করছি। এটি এখনও ডেমো, তাই সরকারি উৎসে তথ্য যাচাই করুন।</string>
+    <string name="share_message_service">সিভিকলেন্স বিডিতে এই সেবাটি দেখুন: %1$s। কাজ করার আগে সরকারি উৎসে বিবরণ নিশ্চিত করুন।</string>
+    <string name="share_chooser">এর মাধ্যমে শেয়ার করুন</string>
+    <string name="share_button">এই সেবা শেয়ার করুন</string>
+
+    <string name="offline_banner">আপনি অফলাইনে আছেন। সংরক্ষিত তথ্য এখনও পাওয়া যাচ্ছে।</string>
+    <string name="back_online">আবার অনলাইনে</string>
+
+    <string name="channel_reminders">সময়সীমার অনুস্মারক</string>
+    <string name="channel_reminders_desc">সংরক্ষিত সেবার সময়সীমার আগে সতর্ক করে</string>
+    <string name="reminder_title">সময়সীমা এগিয়ে আসছে</string>
+    <string name="reminder_content_format">%1$s · শেষ তারিখ %2$s</string>
+    <string name="reminder_mark_done">সম্পন্ন হিসেবে চিহ্নিত করুন</string>
+    <string name="reminder_set_button">অনুস্মারকের তারিখ ঠিক করুন</string>
+    <string name="reminder_saved">অনুস্মারক সংরক্ষিত হয়েছে</string>
+    <string name="reminder_none">এই সেবার জন্য কোনো অনুস্মারক নেই।</string>
+    <string name="reminder_for_format">অনুস্মারক: %1$s</string>
+</resources>

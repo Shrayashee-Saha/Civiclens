@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setting_account">অ্যাকাউন্ট</string>
+    <string name="setting_account_signed_out">সাইন ইন করুন বা অ্যাকাউন্ট খুলুন</string>
+    <string name="setting_account_signed_in">সাইন ইন করা আছে</string>
+    <string name="setting_account_unavailable">এই বিল্ডে অ্যাকাউন্ট চালু নেই</string>
+    <string name="setting_account_signout_title">সাইন আউট করবেন?</string>
+    <string name="setting_account_signout_message">আপনার তথ্য এই ডিভাইসে থাকবে। আপনি যেকোনো সময় আবার সাইন ইন করতে পারবেন।</string>
+    <string name="settings_sign_out">সাইন আউট</string>
+    <string name="settings_cancel">বাতিল</string>
+    <string name="settings_guest">অতিথি</string>
+    <string name="settings_language_title">ভাষা বেছে নিন</string>
+    <string name="settings_lang_system">ডিভাইসের ভাষা অনুসরণ করুন</string>
+    <string name="settings_lang_english">English</string>
+    <string name="settings_lang_bangla">বাংলা</string>
+    <string name="setting_language_current">বর্তমান: %1$s</string>
+</resources>

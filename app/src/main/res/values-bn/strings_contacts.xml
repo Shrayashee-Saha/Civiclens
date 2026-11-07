@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bangla translations. Review by a native speaker before release. -->
+<resources>
+    <string name="type_general">বিভাগীয় প্রশাসনিক অফিস (সেবা কাউন্টার নয়)</string>
+</resources>

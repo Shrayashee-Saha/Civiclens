@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+    <!-- Apps this app opens or checks for (Android 11+ needs these declared to see them). -->
+    <queries>
+        <package android:name="org.mozilla.firefox" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="smsto" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="mailto" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+        </intent>
+    </queries>
+
+    <application
+        android:name=".CivicLensApp"
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.CivicLens">
+
+        <activity
+            android:name="com.example.civiclens.ui.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.example.civiclens.ui.ServiceDetailActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
+
+        <activity
+            android:name="com.example.civiclens.ui.ProjectDetailActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
+
+        <activity
+            android:name="com.example.civiclens.ui.ProjectsActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
+
+        <activity
+            android:name="com.example.civiclens.ui.AccountabilityActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
+
+        <activity
+            android:name="com.example.civiclens.ui.AddProjectActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
+
+        <activity
+            android:name="com.example.civiclens.ui.RtiDraftActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
+
+        <activity
+            android:name="com.example.civiclens.ui.NewsDashboardActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
+
+        <activity
+            android:name="com.example.civiclens.ui.DashboardActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
+
+        <activity
+            android:name="com.example.civiclens.ui.ReportActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
+
+        <activity
+            android:name="com.example.civiclens.ui.AskActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
+
+        <receiver
+            android:name="com.example.civiclens.receiver.ReminderActionReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name="com.example.civiclens.receiver.SystemBroadcastReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BATTERY_LOW" />
+                <action android:name="android.intent.action.BATTERY_OKAY" />
+                <action android:name="android.intent.action.AIRPLANE_MODE" />
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name="com.example.civiclens.ui.SignInActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
+
+        <service
+            android:name="com.example.civiclens.sync.ObservationSyncService"
+            android:foregroundServiceType="dataSync"
+            android:exported="false" />
+
+        <!-- Read-only access to saved observations. exported=false keeps it inside this app. -->
+        <provider
+            android:name="com.example.civiclens.provider.CivicContentProvider"
+            android:authorities="com.example.civiclens.provider"
+            android:exported="false" />
+
+        <service
+            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <meta-data
+                android:name="autoStoreLocales"
+                android:value="true" />
+        </service>
+
+    </application>
+
+</manifest>

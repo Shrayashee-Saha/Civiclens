@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "540160667214",
+    "project_id": "civiclens-e2000",
+    "storage_bucket": "civiclens-e2000.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:540160667214:android:475dcf873237b37ea99d1f",
+        "android_client_info": {
+          "package_name": "com.example.civiclens"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCK8hQ8y2jYgAhL0mfqXIXpqWos1IkuOko"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

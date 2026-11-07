@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="report_submit">Submit to CivicLens server</string>
+    <string name="report_submit_note">Sends the text of this report to the CivicLens server so it is stored safely. No office is notified automatically unless that office has agreed to receive reports through CivicLens. Photos stay on this device for now.</string>
+    <string name="report_submit_unconfigured">Submission is off in this build. The report is saved and will send once the server address is set.</string>
+    <string name="sync_queued">Waiting to send (needs internet)</string>
+    <string name="sync_received">Received by CivicLens. Not yet confirmed by the office.</string>
+    <string name="sync_forwarded">Forwarded to the office. Waiting for confirmation.</string>
+    <string name="sync_confirmed">Office confirmed receipt.</string>
+    <string name="sync_resolved">Marked resolved by the office.</string>
+</resources>

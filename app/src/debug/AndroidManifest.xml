@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Debug builds only: lets the emulator reach a local proxy over plain http (10.0.2.2).
+         Release builds keep cleartext traffic blocked. Use https for any real server. -->
+    <application android:usesCleartextTraffic="true" />
+</manifest>

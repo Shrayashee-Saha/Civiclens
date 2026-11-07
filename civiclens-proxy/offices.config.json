@@ -1,0 +1,4 @@
+{
+  "_help": "Add an office ONLY after a written agreement with it. Each entry needs verified: true, a webhookUrl the office provides, and verifiedSource (the agreement or official page). Leave this empty until then. Forwarding also needs FORWARDING_ENABLED=true.",
+  "offices": {}
+}

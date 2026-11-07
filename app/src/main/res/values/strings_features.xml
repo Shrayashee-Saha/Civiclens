@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hero_title">Welcome to CivicLens BD</string>
+    <string name="quick_find">Find service</string>
+    <string name="quick_offices">Offices</string>
+    <string name="quick_projects">Projects</string>
+    <string name="quick_saved">Saved</string>
+    <string name="results_title">Services</string>
+    <string name="nav_settings">Settings</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="setting_notifications">Deadline reminders</string>
+    <string name="setting_notifications_on">On. You will get a notification 3 days before a saved deadline.</string>
+    <string name="setting_notifications_off">Off. You will not get reminder notifications.</string>
+    <string name="setting_share">Share CivicLens BD</string>
+    <string name="setting_share_subtitle">Send the app to someone who needs it</string>
+    <string name="setting_language">Language</string>
+    <string name="setting_language_subtitle">Follows your phone language. Tap to change it in phone settings.</string>
+    <string name="setting_about">About the data</string>
+    <string name="setting_about_subtitle">What is demo data and how to get verified data</string>
+    <string name="setting_version">App version</string>
+    <string name="setting_version_format">%1$s (demo build)</string>
+    <string name="about_message">Most records in this app are DEMO or FICTIONAL data. Fees, procedures, office details, and project records have not been verified. Confirm everything with the official source before acting on it.</string>
+    <string name="share_message_app">I am using CivicLens BD to find government services and prepare documents. It is still a demo, so check details with official sources.</string>
+    <string name="share_message_service">Check this service on CivicLens BD: %1$s. Confirm the details on the official source before you act.</string>
+    <string name="share_chooser">Share with</string>
+    <string name="share_button">Share this service</string>
+
+    <string name="offline_banner">You are offline. Saved information is still available.</string>
+    <string name="back_online">Back online</string>
+
+    <string name="channel_reminders">Deadline reminders</string>
+    <string name="channel_reminders_desc">Reminds you before a saved service deadline</string>
+    <string name="reminder_title">Deadline coming up</string>
+    <string name="reminder_content_format">%1$s · due %2$s</string>
+    <string name="reminder_mark_done">Mark done</string>
+    <string name="reminder_set_button">Set a reminder date</string>
+    <string name="reminder_saved">Reminder saved</string>
+    <string name="reminder_none">No reminder set for this service.</string>
+    <string name="reminder_for_format">Reminder on %1$s</string>
+</resources>

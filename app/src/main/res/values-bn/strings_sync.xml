@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bangla translations. Review by a native speaker before release. -->
+<resources>
+    <string name="report_submit">সিভিকলেন্স সার্ভারে জমা দিন</string>
+    <string name="report_submit_note">এই প্রতিবেদনের লেখা নিরাপদে সংরক্ষণের জন্য সিভিকলেন্স সার্ভারে পাঠানো হবে। যে অফিস সিভিকলেন্সের মাধ্যমে প্রতিবেদন নিতে সম্মত না হলে তাকে স্বয়ংক্রিয়ভাবে জানানো হবে না। ছবি আপাতত এই ডিভাইসেই থাকবে।</string>
+    <string name="report_submit_unconfigured">এই সংস্করণে জমা দেওয়া বন্ধ। প্রতিবেদন সংরক্ষিত হয়েছে এবং সার্ভারের ঠিকানা সেট হলে পাঠানো হবে।</string>
+    <string name="sync_queued">পাঠানোর অপেক্ষায় (ইন্টারনেট দরকার)</string>
+    <string name="sync_received">সিভিকলেন্স পেয়েছে। অফিস এখনও নিশ্চিত করেনি।</string>
+    <string name="sync_forwarded">অফিসে পাঠানো হয়েছে। নিশ্চিতকরণের অপেক্ষায়।</string>
+    <string name="sync_confirmed">অফিস প্রাপ্তি নিশ্চিত করেছে।</string>
+    <string name="sync_resolved">অফিস সমস্যাটি সমাধান হিসেবে চিহ্নিত করেছে।</string>
+</resources>

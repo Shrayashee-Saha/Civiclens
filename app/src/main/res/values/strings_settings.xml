@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setting_account">Account</string>
+    <string name="setting_account_signed_out">Sign in or create an account</string>
+    <string name="setting_account_signed_in">Signed in</string>
+    <string name="setting_account_unavailable">Accounts are not set up in this build</string>
+    <string name="setting_account_signout_title">Sign out?</string>
+    <string name="setting_account_signout_message">Your saved data stays on this device. You can sign in again any time.</string>
+    <string name="settings_sign_out">Sign out</string>
+    <string name="settings_cancel">Cancel</string>
+    <string name="settings_guest">Guest</string>
+    <string name="settings_language_title">Choose language</string>
+    <string name="settings_lang_system">Follow device language</string>
+    <string name="settings_lang_english">English</string>
+    <string name="settings_lang_bangla">বাংলা</string>
+    <string name="setting_language_current">Current: %1$s</string>
+</resources>

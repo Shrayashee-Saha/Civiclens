@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bangla translations. Review by a native speaker before release. -->
+<resources>
+    <string name="action_message">বার্তা</string>
+    <string name="ask_button">সিভিকলেন্সকে জিজ্ঞাসা করুন</string>
+    <string name="report_button">সমস্যা জানান</string>
+
+    <string name="ask_title">সিভিকলেন্সকে জিজ্ঞাসা করুন</string>
+    <string name="ask_intro">বাংলা বা ইংরেজিতে জিজ্ঞাসা করুন। উত্তর শুধু যাচাই করা তথ্য থেকে দেওয়া হয়। ডেমো তথ্য যাচাই-না-করা হিসেবে চিহ্নিত।</string>
+    <string name="ask_hint">যেমন: আমার জন্ম সনদ হারিয়ে গেছে। আমি কী করব?</string>
+    <string name="ask_send">জিজ্ঞাসা করুন</string>
+    <string name="ask_placeholder">আপনার উত্তর এখানে দেখাবে।</string>
+    <string name="ask_empty_error">অনুগ্রহ করে আগে একটি প্রশ্ন লিখুন।</string>
+    <string name="ask_disclaimer">সিভিকলেন্স একটি তথ্য সহায়ক, কোনো সরকারি অফিস বা আইনি কর্তৃপক্ষ নয়। কাজ করার আগে সরকারি উৎসে নিশ্চিত হোন।</string>
+    <string name="assistant_not_configured">এই সংস্করণে এআই সহায়ক সেট করা নেই। যাচাই করা তথ্য সরাসরি দেখানো হচ্ছে।</string>
+    <string name="assistant_unavailable">এআই সহায়ক এখন পাওয়া যাচ্ছে না। যাচাই করা তথ্য সরাসরি দেখানো হচ্ছে।</string>
+    <string name="assistant_no_match">কোনো মিলে যাওয়া যাচাই করা তথ্য নেই। হোম ট্যাবে সেবা খুঁজে দেখুন।</string>
+    <string name="assistant_status_label">অবস্থা</string>
+    <string name="assistant_demo_label">ডেমো, যাচাই করা হয়নি</string>
+    <string name="assistant_documents_label">প্রয়োজনীয় নথি</string>
+    <string name="assistant_source_format">উৎস: %1$s</string>
+
+    <string name="report_title">স্থানীয় সমস্যা জানান</string>
+    <string name="report_intro">সমস্যাটি এবং কোথায় তা লিখুন। চাইলে গ্যালারি থেকে একটি ছবি যুক্ত করতে পারেন। আপনি পাঠানোর সিদ্ধান্ত না নেওয়া পর্যন্ত কিছু পাঠানো হয় না।</string>
+    <string name="report_category">সমস্যার ধরন</string>
+    <string name="report_district">জেলা</string>
+    <string name="report_description">সমস্যাটি কী? (২০ থেকে ৫০০ অক্ষর)</string>
+    <string name="report_location">ঠিক কোথায়? (রাস্তা, চিহ্নিত স্থান)</string>
+    <string name="report_attach_photo">গ্যালারি থেকে ছবি যুক্ত করুন</string>
+    <string name="report_photo_preview">নির্বাচিত ছবির প্রিভিউ</string>
+    <string name="report_routed_format">প্রস্তাবিত অফিস: %1$s। পাঠানোর আগে অফিসের সঙ্গে নিশ্চিত করুন।</string>
+    <string name="report_no_route">এই জেলায় এই ধরনের সমস্যার জন্য কোনো অফিস পাওয়া যায়নি।</string>
+    <string name="report_too_short">অনুগ্রহ করে সমস্যাটি অন্তত ২০ অক্ষরে লিখুন।</string>
+    <string name="report_too_long">অনুগ্রহ করে বিবরণ ৫০০ অক্ষরের মধ্যে রাখুন।</string>
+    <string name="report_district_required">অনুগ্রহ করে একটি জেলা বেছে নিন।</string>
+    <string name="report_saved">এই ডিভাইসে সংরক্ষিত হয়েছে</string>
+    <string name="report_duplicate_warning">এটি একই জেলার আগের একটি প্রতিবেদনের মতো। এটি সংরক্ষিত হয়েছে এবং পর্যালোচনার জন্য চিহ্নিত। আবার পাঠানোর আগে আগের প্রতিবেদনটি দেখুন।</string>
+    <string name="report_save_draft">এই ডিভাইসে খসড়া সংরক্ষণ করুন</string>
+    <string name="report_send_sms">এই প্রতিবেদন নিয়ে বার্তা অ্যাপ খুলুন</string>
+    <string name="report_send_email">এই প্রতিবেদন নিয়ে ইমেইল খুলুন</string>
+    <string name="report_share">প্রতিবেদনের লেখা শেয়ার করুন</string>
+    <string name="report_share_title">প্রতিবেদন শেয়ার করুন</string>
+    <string name="report_disclaimer">সিভিকলেন্স এই প্রতিবেদন কোনো অফিসে পাঠায় না। বার্তা বা ইমেইল খুললে শুধু প্রস্তুত হয়। সেই অ্যাপে আপনাকে পাঠাতে চাপতে হবে। কোনো অফিস এটি যাচাই বা প্রাপ্তি নিশ্চিত করেনি।</string>
+    <string name="report_your_reports">এই ডিভাইসে আপনার প্রতিবেদন</string>
+    <string name="report_none">এখনও কোনো প্রতিবেদন নেই।</string>
+    <string name="report_status_draft">এই ডিভাইসে সংরক্ষিত</string>
+    <string name="report_status_prepared">পাঠানোর জন্য প্রস্তুত (সিভিকলেন্স পাঠায়নি)</string>
+    <string name="report_status_duplicate">সম্ভবত একই প্রতিবেদন, পর্যালোচনা দরকার</string>
+    <string name="report_message_subject">নাগরিক সমস্যার প্রতিবেদন: %1$s</string>
+    <string name="report_message_body">নাগরিক সমস্যার প্রতিবেদন (নাগরিকের পক্ষ থেকে, অফিস এখনও যাচাই করেনি)
+ধরন: %1$s
+জেলা: %2$s
+অবস্থান: %3$s
+বিবরণ: %4$s
+ছবি যুক্ত: %5$s
+
+সিভিকলেন্স বিডি ডেমো সংস্করণের মাধ্যমে পাঠানো।</string>
+    <string name="report_not_given">দেওয়া হয়নি</string>
+    <string name="report_yes">হ্যাঁ</string>
+    <string name="report_no">না</string>
+
+    <string name="setting_firefox">সরকারি লিংক ফায়ারফক্সে খুলুন</string>
+    <string name="setting_firefox_on">চালু। ফায়ারফক্স ইনস্টল থাকলে লিংক সেখানে খুলবে।</string>
+    <string name="setting_firefox_off">বন্ধ। লিংক আপনার ডিফল্ট ব্রাউজারে খুলবে।</string>
+    <string name="setting_firefox_missing">চালু আছে, কিন্তু ফায়ারফক্স ইনস্টল নেই। ডিফল্ট ব্রাউজার ব্যবহার হবে।</string>
+
+    <string-array name="report_categories">
+        <item>ভাঙা রাস্তা বা গর্ত</item>
+        <item>ভাঙা বাতি</item>
+        <item>নর্দমা বা জলাবদ্ধতা</item>
+        <item>আবর্জনা ব্যবস্থাপনা</item>
+        <item>ক্ষতিগ্রস্ত গণসুবিধা</item>
+    </string-array>
+</resources>

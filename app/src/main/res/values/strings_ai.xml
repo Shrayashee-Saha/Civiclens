@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_message">Message</string>
+    <string name="ask_button">Ask CivicLens</string>
+    <string name="report_button">Report a problem</string>
+
+    <string name="ask_title">Ask CivicLens</string>
+    <string name="ask_intro">Ask in Bangla or English. Answers use only verified records. Demo records are marked as unverified.</string>
+    <string name="ask_hint">For example: I lost my birth certificate. What should I do?</string>
+    <string name="ask_send">Ask</string>
+    <string name="ask_placeholder">Your answer will appear here.</string>
+    <string name="ask_empty_error">Please type a question first.</string>
+    <string name="ask_disclaimer">CivicLens is an information assistant, not a government office or legal authority. Confirm with the official source before acting.</string>
+    <string name="assistant_not_configured">The AI assistant is not configured on this build. Showing verified records directly.</string>
+    <string name="assistant_unavailable">The AI assistant is unavailable right now. Showing verified records directly.</string>
+    <string name="assistant_no_match">No matching verified record. Try the service search on the Home tab.</string>
+    <string name="assistant_status_label">Status</string>
+    <string name="assistant_demo_label">DEMO, not verified</string>
+    <string name="assistant_documents_label">Required documents</string>
+    <string name="assistant_source_format">Source: %1$s</string>
+
+    <string name="report_title">Report a local problem</string>
+    <string name="report_intro">Describe the problem and where it is. You can attach a photo from your gallery. Nothing is sent until you choose to send it.</string>
+    <string name="report_category">Type of problem</string>
+    <string name="report_district">District</string>
+    <string name="report_description">What is the problem? (20 to 500 characters)</string>
+    <string name="report_location">Where exactly? (street, landmark)</string>
+    <string name="report_attach_photo">Attach a photo from gallery</string>
+    <string name="report_photo_preview">Selected photo preview</string>
+    <string name="report_routed_format">Suggested office: %1$s. Confirm this with the office before sending.</string>
+    <string name="report_no_route">No office found for this type of problem in this district.</string>
+    <string name="report_too_short">Please describe the problem in at least 20 characters.</string>
+    <string name="report_too_long">Please keep the description under 500 characters.</string>
+    <string name="report_district_required">Please choose a district.</string>
+    <string name="report_saved">Saved on this device</string>
+    <string name="report_duplicate_warning">This looks similar to an earlier report in the same district. It is saved and marked for review. Check the earlier report before sending another one.</string>
+    <string name="report_save_draft">Save draft on this device</string>
+    <string name="report_send_sms">Open messages with this report</string>
+    <string name="report_send_email">Open email with this report</string>
+    <string name="report_share">Share the report text</string>
+    <string name="report_share_title">Share report</string>
+    <string name="report_disclaimer">CivicLens does not send this report to any office. Opening messages or email only prepares it. You press send in that app. The report is not verified or confirmed as received by any office.</string>
+    <string name="report_your_reports">Your reports on this device</string>
+    <string name="report_none">No reports yet.</string>
+    <string name="report_status_draft">Saved on this device</string>
+    <string name="report_status_prepared">Prepared to send (not sent by CivicLens)</string>
+    <string name="report_status_duplicate">Possible duplicate, needs review</string>
+    <string name="report_message_subject">Civic issue report: %1$s</string>
+    <string name="report_message_body">Civic issue report (from a citizen, not yet verified by the office)
+Type: %1$s
+District: %2$s
+Location: %3$s
+Description: %4$s
+Photo attached: %5$s
+
+Sent through CivicLens BD demo build.</string>
+    <string name="report_not_given">not given</string>
+    <string name="report_yes">yes</string>
+    <string name="report_no">no</string>
+
+    <string name="setting_firefox">Open official links in Firefox</string>
+    <string name="setting_firefox_on">On. Links open in Firefox when it is installed.</string>
+    <string name="setting_firefox_off">Off. Links open in your default browser.</string>
+    <string name="setting_firefox_missing">On, but Firefox is not installed. Your default browser is used.</string>
+
+    <string-array name="report_categories">
+        <item>Damaged road or pothole</item>
+        <item>Broken streetlight</item>
+        <item>Drainage or waterlogging</item>
+        <item>Waste disposal</item>
+        <item>Damaged public facility</item>
+    </string-array>
+</resources>

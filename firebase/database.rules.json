@@ -1,0 +1,12 @@
+{
+  "rules": {
+    "observations": {
+      "$projectId": {
+        "$observationId": {
+          ".read": "auth != null",
+          ".write": "auth != null && (newData.exists() ? newData.child('uid').val() === auth.uid : data.child('uid').val() === auth.uid)"
+        }
+      }
+    }
+  }
+}

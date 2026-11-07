@@ -1,0 +1,112 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Values come from local.properties (never committed):
+//   assistant.url=http://10.0.2.2:8787
+//   report.url=http://10.0.2.2:8787
+//   test.phone=+8801XXXXXXXXX     (YOUR OWN number, debug builds only)
+//   test.email=you@example.com    (YOUR OWN address, debug builds only)
+def localProps = new Properties()
+def localFile = rootProject.file('local.properties')
+if (localFile.exists()) {
+    localFile.withInputStream { localProps.load(it) }
+}
+def assistantUrl = localProps.getProperty('assistant.url', '')
+def reportUrl = localProps.getProperty('report.url', '')
+def testPhone = localProps.getProperty('test.phone', '')
+def testEmail = localProps.getProperty('test.email', '')
+def newsApiKey = localProps.getProperty('news.api.key', '')
+def rssFeedUrl = localProps.getProperty('rss.feed.url', 'https://www.tbsnews.net/rss.xml')
+def geminiApiKey = localProps.getProperty('gemini.api.key', '')
+
+// Firebase only activates when app/google-services.json is present, so the app still
+// builds and runs without it. Download the file from the Firebase console.
+if (file('google-services.json').exists()) {
+    apply plugin: 'com.google.gms.google-services'
+}
+
+android {
+    namespace 'com.example.civiclens'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.example.civiclens"
+        minSdk 24
+        targetSdk 34
+        versionCode 6
+        versionName "0.6.0"
+        buildConfigField "String", "ASSISTANT_URL", "\"${assistantUrl}\""
+        buildConfigField "String", "REPORT_URL", "\"${reportUrl}\""
+        buildConfigField "String", "NEWS_API_KEY", "\"${newsApiKey}\""
+        buildConfigField "String", "RSS_FEED_URL", "\"${rssFeedUrl}\""
+        buildConfigField "String", "GEMINI_API_KEY", "\"${geminiApiKey}\""
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.incremental": "false"]
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField "String", "TEST_PHONE", "\"${testPhone}\""
+            buildConfigField "String", "TEST_EMAIL", "\"${testEmail}\""
+        }
+        release {
+            // Release builds never use test contacts.
+            buildConfigField "String", "TEST_PHONE", "\"\""
+            buildConfigField "String", "TEST_EMAIL", "\"\""
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildFeatures {
+        viewBinding true
+        buildConfig true
+    }
+}
+
+dependencies {
+    implementation project(':ai')
+
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.fragment:fragment:1.8.2'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    implementation 'androidx.room:room-runtime:2.6.1'
+    annotationProcessor 'androidx.room:room-compiler:2.6.1'
+
+    implementation 'androidx.work:work-runtime:2.9.1'
+    implementation 'com.google.guava:guava:33.2.1-android'
+    implementation 'org.osmdroid:osmdroid-android:6.1.18'
+
+    // Firebase (BOM keeps all Firebase library versions in step).
+    implementation platform('com.google.firebase:firebase-bom:33.5.1')
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-database'
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.firebase:firebase-messaging'
+
+    // Used by the content provider's raw SQL query.
+    implementation 'androidx.sqlite:sqlite:2.4.0'
+
+    testImplementation 'junit:junit:4.13.2'
+}
+
+// Disable incremental Java compilation to prevent Windows file locking issues in generated source output directories.
+tasks.withType(JavaCompile).configureEach {
+    options.incremental = false
+}
+
+
+
+
+
