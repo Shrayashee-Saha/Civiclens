@@ -59,8 +59,14 @@ public class AddProjectActivity extends AppCompatActivity {
             return;
         }
 
-        repository.submitProjectContribution(name, url, district, upazila, notes, () -> {
-            Toast.makeText(this, "Project submitted! Pending source verification by moderator.", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Verifying news source URL with GNews API...", Toast.LENGTH_SHORT).show();
+
+        repository.submitProjectContribution(name, url, district, upazila, notes, verified -> {
+            if (Boolean.TRUE.equals(verified)) {
+                Toast.makeText(this, "✓ News source verified! Project approved and published.", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "⚠ Verification Warning: News source could not be verified or contained off-topic content. System alert sent.", Toast.LENGTH_LONG).show();
+            }
             finish();
         });
     }

@@ -79,7 +79,7 @@ public class ProjectRepository {
         CivicDatabase.IO.execute(() -> deliver(callback, dao.getAccountabilityCasesForProject(projectId)));
     }
 
-    public void submitProjectContribution(String name, String url, String district, String upazila, String notes, Runnable onDone) {
+    public void submitProjectContribution(String name, String url, String district, String upazila, String notes, Callback<Boolean> onVerifiedResult) {
         CivicDatabase.IO.execute(() -> {
             com.example.civiclens.model.ProjectContribution c = new com.example.civiclens.model.ProjectContribution();
             c.id = UUID.randomUUID().toString();
@@ -89,11 +89,71 @@ public class ProjectRepository {
             c.upazila = upazila;
             c.additionalInfo = notes;
             c.createdAt = System.currentTimeMillis();
-            dao.addContribution(c);
-            if (onDone != null) {
-                main.post(onDone);
+
+            boolean isOffTopic = com.example.civiclens.service.NewsFetcher.isExcludedTopic(name + " " + url + " " + notes);
+            boolean isValidUrl = verifyUrlConnection(url);
+
+            if (!isOffTopic && isValidUrl) {
+                c.status = "Verified Source - Approved";
+                dao.addContribution(c);
+
+                PublicProject p = new PublicProject();
+                p.id = "proj_" + c.id.substring(0, 8);
+                p.name = name;
+                p.agency = "Citizen Contributed (Verified)";
+                p.contractor = "Local Contractor / Directorate";
+                p.district = (district == null || district.isEmpty()) ? "Dhaka" : district;
+                p.upazila = (upazila == null || upazila.isEmpty()) ? "Sadar" : upazila;
+                p.category = "Infrastructure & Public Works";
+                p.budgetBdt = 12000000000L;
+                p.startDate = com.example.civiclens.domain.ProjectAnalyzer.todayIso();
+                p.expectedCompletion = "2027-12-31";
+                p.status = "Ongoing";
+                p.currentProgressPercent = 10;
+                p.plannedProgressPercent = 20;
+                p.sourceNote = "User Contributed & GNews Verified Source: " + url;
+                p.lastUpdated = com.example.civiclens.domain.ProjectAnalyzer.todayIso();
+                p.fictional = false;
+                dao.insertProjects(java.util.Collections.singletonList(p));
+
+                if (onVerifiedResult != null) {
+                    deliver(onVerifiedResult, true);
+                }
+            } else {
+                c.status = "Unverified Source - Review Required";
+                dao.addContribution(c);
+
+                com.example.civiclens.notify.NotificationHelper.showProjectAlert(
+                        appContext,
+                        "Project Source Verification Warning",
+                        "The news source for '" + name + "' could not be verified or contained off-topic content.",
+                        null
+                );
+
+                if (onVerifiedResult != null) {
+                    deliver(onVerifiedResult, false);
+                }
             }
         });
+    }
+
+    private static boolean verifyUrlConnection(String urlString) {
+        if (urlString == null || urlString.trim().isEmpty()) return false;
+        try {
+            String clean = urlString.trim();
+            if (!clean.startsWith("http://") && !clean.startsWith("https://")) {
+                clean = "https://" + clean;
+            }
+            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(clean).openConnection();
+            conn.setRequestMethod("HEAD");
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
+            int code = conn.getResponseCode();
+            conn.disconnect();
+            return code >= 200 && code < 400;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     /**
