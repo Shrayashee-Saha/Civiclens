@@ -7,47 +7,32 @@
     android:layout_marginBottom="14dp"
     android:clickable="true"
     android:focusable="true"
-    app:cardCornerRadius="18dp"
-    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="2dp"
     app:strokeColor="@color/stroke"
     app:strokeWidth="1dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="16dp">
 
-        <ImageView
-            android:id="@+id/iconImage"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="@drawable/bg_icon_circle"
-            android:contentDescription="@null"
-            android:padding="12dp"
-            android:src="@drawable/ic_doc"
-            android:tint="@color/green"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
-            android:layout_marginEnd="8dp"
-            android:orientation="vertical"
-            app:layout_constraintStart_toEndOf="@id/iconImage"
-            app:layout_constraintEnd_toStartOf="@id/chevronImage"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/serviceCategory"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/serviceTrustTag"
+                android:layout_marginEnd="8dp"
                 android:background="@drawable/bg_chip"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
                 android:paddingTop="3dp"
                 android:paddingBottom="3dp"
                 android:textColor="@color/green"
@@ -55,40 +40,68 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/serviceName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:textColor="@color/navy"
-                android:textSize="17sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/serviceAuthority"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
-
-            <TextView
                 android:id="@+id/serviceTrustTag"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/bg_verified_chip"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
                 android:textSize="11sp"
                 android:textStyle="bold" />
-        </LinearLayout>
+        </RelativeLayout>
 
-        <ImageView
-            android:id="@+id/chevronImage"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_chevron"
-            android:tint="@color/text_hint"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/iconImage"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:background="@drawable/bg_icon_circle"
+                android:contentDescription="@null"
+                android:padding="12dp"
+                android:src="@drawable/ic_doc"
+                app:tint="@color/green" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/serviceName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/navy"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/serviceAuthority"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/chevronImage"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginStart="8dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_chevron"
+                app:tint="@color/text_hint" />
+        </LinearLayout>
+    </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

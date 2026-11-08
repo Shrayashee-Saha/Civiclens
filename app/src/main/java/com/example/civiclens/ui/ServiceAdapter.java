@@ -51,12 +51,15 @@ public class ServiceAdapter extends RecyclerView.Adapter<ServiceAdapter.ViewHold
 
         if (service.demoData) {
             holder.trustTag.setText(R.string.demo_tag);
+            holder.trustTag.setBackgroundResource(R.drawable.bg_warning_chip);
             holder.trustTag.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.warning));
         } else if (service.lastVerified != null && !service.lastVerified.equals("NOT VERIFIED")) {
             holder.trustTag.setText(holder.itemView.getContext().getString(R.string.verified_tag, service.lastVerified));
+            holder.trustTag.setBackgroundResource(R.drawable.bg_verified_chip);
             holder.trustTag.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.green));
         } else {
             holder.trustTag.setText(R.string.needs_checking_tag);
+            holder.trustTag.setBackgroundResource(R.drawable.bg_warning_chip);
             holder.trustTag.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.warning));
         }
 
