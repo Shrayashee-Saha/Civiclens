@@ -20,6 +20,12 @@ public class CivicLensApp extends Application {
         super.onCreate();
         NotificationHelper.createChannels(this);
 
+        if (com.example.civiclens.data.AppPrefs.isDarkMode(this)) {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
         PeriodicWorkRequest dailyCheck =
                 new PeriodicWorkRequest.Builder(ReminderWorker.class, 1, TimeUnit.DAYS).build();
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
