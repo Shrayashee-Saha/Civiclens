@@ -39,11 +39,12 @@ public class SettingsFragment extends Fragment {
     private static final int ROW_NOTIFICATIONS = 1;
     private static final int ROW_NOTIF_INBOX = 2;
     private static final int ROW_ACCESSIBILITY_TEST = 3;
-    private static final int ROW_FIREFOX = 4;
-    private static final int ROW_LANGUAGE = 5;
-    private static final int ROW_SHARE = 6;
-    private static final int ROW_ABOUT = 7;
-    private static final int ROW_VERSION = 8;
+    private static final int ROW_DARK_MODE = 4;
+    private static final int ROW_FIREFOX = 5;
+    private static final int ROW_LANGUAGE = 6;
+    private static final int ROW_SHARE = 7;
+    private static final int ROW_ABOUT = 8;
+    private static final int ROW_VERSION = 9;
 
     private static final String[] LANGUAGE_TAGS = {"", "en", "bn"};
 
@@ -154,12 +155,15 @@ public class SettingsFragment extends Fragment {
             firefoxSubtitle = getString(R.string.setting_firefox_missing);
         }
 
+        boolean darkMode = AppPrefs.isDarkMode(context);
+
         adapter.clear();
         adapter.add(new Row(getString(R.string.setting_account), accountSubtitle));
         adapter.add(new Row(getString(R.string.setting_notifications),
                 getString(notifications ? R.string.setting_notifications_on : R.string.setting_notifications_off)));
         adapter.add(new Row("📬 Notification Inbox & Tracker", "View real-time alerts, system broadcasts, & tracked reports"));
         adapter.add(new Row("🔊 Accessibility & Voice Assistant Test", "Test Text-to-Speech voice readouts & haptic vibrations for blind/deaf users"));
+        adapter.add(new Row("🌙 Dark Theme / Night Mode", darkMode ? "Night Theme Enabled" : "Standard Light Theme"));
         adapter.add(new Row(getString(R.string.setting_firefox), firefoxSubtitle));
         adapter.add(new Row(getString(R.string.setting_language),
                 getString(R.string.setting_language_current, currentLanguageLabel())));
@@ -195,6 +199,12 @@ public class SettingsFragment extends Fragment {
             case ROW_ACCESSIBILITY_TEST:
                 com.example.civiclens.accessibility.AccessibilityHelper.vibrateSuccess(requireContext());
                 com.example.civiclens.accessibility.AccessibilityHelper.speak(requireContext(), "CivicLens Universal Accessibility Engine Active. Tactile vibration and Text to Speech voice guidance active for deaf and blind users.");
+                break;
+            case ROW_DARK_MODE:
+                boolean newDark = !AppPrefs.isDarkMode(requireContext());
+                AppPrefs.setDarkMode(requireContext(), newDark);
+                AppCompatDelegate.setDefaultNightMode(newDark ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+                refreshRows();
                 break;
             case ROW_FIREFOX:
                 AppPrefs.setPreferFirefox(requireContext(), !AppPrefs.preferFirefox(requireContext()));

@@ -101,6 +101,16 @@ public class HomeFragment extends Fragment {
             execDash.setOnClickListener(v -> startActivity(new Intent(requireContext(), DashboardActivity.class)));
         }
 
+        MaterialButton helplines = view.findViewById(R.id.helplinesButton);
+        if (helplines != null) {
+            helplines.setOnClickListener(v -> startActivity(new Intent(requireContext(), HelplinesActivity.class)));
+        }
+
+        MaterialButton mapExplorer = view.findViewById(R.id.mapExplorerButton);
+        if (mapExplorer != null) {
+            mapExplorer.setOnClickListener(v -> startActivity(new Intent(requireContext(), DivisionMapActivity.class)));
+        }
+
         new ServiceRepository(requireContext()).getAllServices(list -> {
             if (!isAdded()) {
                 return;
@@ -123,7 +133,7 @@ public class HomeFragment extends Fragment {
 
     private void render() {
         if (currentQuery == null || currentQuery.trim().isEmpty()) {
-            adapter.submit(new ArrayList<>());
+            adapter.submit(allServices);
             emptyText.setVisibility(View.GONE);
             return;
         }

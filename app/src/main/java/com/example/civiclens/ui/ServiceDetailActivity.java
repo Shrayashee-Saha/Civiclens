@@ -222,8 +222,20 @@ public class ServiceDetailActivity extends AppCompatActivity {
         new DatePickerDialog(this, (view, year, month, day) -> {
             String iso = String.format(Locale.US, "%04d-%02d-%02d", year, month + 1, day);
             reminderRepository.add(serviceId, serviceName, iso, () -> {
-                Toast.makeText(this, R.string.reminder_saved, Toast.LENGTH_SHORT).show();
+                com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "Reminder deadline saved!", false);
                 loadReminder();
+
+                try {
+                    Calendar cal = Calendar.getInstance();
+                    cal.set(year, month, day, 9, 0);
+                    Intent intent = new Intent(Intent.ACTION_INSERT)
+                            .setData(android.provider.CalendarContract.Events.CONTENT_URI)
+                            .putExtra(android.provider.CalendarContract.Events.TITLE, "CivicLens Deadline: " + serviceName)
+                            .putExtra(android.provider.CalendarContract.Events.DESCRIPTION, "Official document application deadline for " + serviceName)
+                            .putExtra(android.provider.CalendarContract.EXTRA_EVENT_BEGIN_TIME, cal.getTimeInMillis())
+                            .putExtra(android.provider.CalendarContract.EXTRA_EVENT_END_TIME, cal.getTimeInMillis() + 3600000);
+                    startActivity(intent);
+                } catch (Exception ignored) { }
             });
         }, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH)).show();
     }

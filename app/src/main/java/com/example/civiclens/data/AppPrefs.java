@@ -28,6 +28,14 @@ public final class AppPrefs {
         prefs(context).edit().putBoolean(KEY_SIGNIN_PROMPT_SEEN, true).apply();
     }
 
+    public static boolean isDarkMode(Context context) {
+        return prefs(context).getBoolean("dark_mode_enabled", false);
+    }
+
+    public static void setDarkMode(Context context, boolean value) {
+        prefs(context).edit().putBoolean("dark_mode_enabled", value).apply();
+    }
+
     private static SharedPreferences prefs(Context context) {
         return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
