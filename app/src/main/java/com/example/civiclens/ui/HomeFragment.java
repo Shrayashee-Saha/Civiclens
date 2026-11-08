@@ -29,11 +29,24 @@ import java.util.List;
 
 public class HomeFragment extends Fragment {
 
-    private ServiceAdapter adapter;
+    private LineAdapter universalAdapter;
     private TextView emptyText;
     private TextInputEditText searchInput;
     private List<GovernmentService> allServices = new ArrayList<>();
+    private final List<SearchResultItem> lastSearchHits = new ArrayList<>();
     private String currentQuery = "";
+
+    private static class SearchResultItem {
+        final String title;
+        final String subtitle;
+        final Runnable onClick;
+
+        SearchResultItem(String title, String subtitle, Runnable onClick) {
+            this.title = title;
+            this.subtitle = subtitle;
+            this.onClick = onClick;
+        }
+    }
 
     @Nullable
     @Override
@@ -52,9 +65,12 @@ public class HomeFragment extends Fragment {
         RecyclerView results = view.findViewById(R.id.resultsList);
         results.setLayoutManager(new LinearLayoutManager(requireContext()));
         results.setNestedScrollingEnabled(false);
-        adapter = new ServiceAdapter(service ->
-                startActivity(ServiceDetailActivity.intent(requireContext(), service.id)));
-        results.setAdapter(adapter);
+        universalAdapter = new LineAdapter(position -> {
+            if (position >= 0 && position < lastSearchHits.size()) {
+                lastSearchHits.get(position).onClick.run();
+            }
+        });
+        results.setAdapter(universalAdapter);
 
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -133,12 +149,56 @@ public class HomeFragment extends Fragment {
 
     private void render() {
         if (currentQuery == null || currentQuery.trim().isEmpty()) {
-            adapter.submit(allServices);
+            List<LineAdapter.Line> lines = new ArrayList<>();
+            lastSearchHits.clear();
+            for (GovernmentService s : allServices) {
+                lines.add(new LineAdapter.Line(s.nameEn, "[Service] · " + s.authority + " · " + s.category));
+                lastSearchHits.add(new SearchResultItem(s.nameEn, s.authority, () ->
+                        startActivity(ServiceDetailActivity.intent(requireContext(), s.id))));
+            }
+            universalAdapter.submit(lines);
             emptyText.setVisibility(View.GONE);
             return;
         }
-        List<GovernmentService> results = SearchRanker.rank(currentQuery, allServices);
-        adapter.submit(results);
-        emptyText.setVisibility(results.isEmpty() ? View.VISIBLE : View.GONE);
+
+        String queryLower = currentQuery.toLowerCase().trim();
+        List<LineAdapter.Line> lines = new ArrayList<>();
+        lastSearchHits.clear();
+
+        for (GovernmentService s : allServices) {
+            if (s.nameEn.toLowerCase().contains(queryLower) || s.category.toLowerCase().contains(queryLower) || (s.keywords != null && s.keywords.toLowerCase().contains(queryLower))) {
+                lines.add(new LineAdapter.Line("📌 " + s.nameEn, "[Service] · " + s.authority));
+                lastSearchHits.add(new SearchResultItem(s.nameEn, s.authority, () ->
+                        startActivity(ServiceDetailActivity.intent(requireContext(), s.id))));
+            }
+        }
+
+        new ServiceRepository(requireContext()).getOffices(offices -> {
+            if (!isAdded()) return;
+            for (com.example.civiclens.model.GovernmentOffice o : offices) {
+                if (o.nameEn.toLowerCase().contains(queryLower) || o.district.toLowerCase().contains(queryLower)) {
+                    lines.add(new LineAdapter.Line("🏛️ " + o.nameEn, "[Office Directory] · " + o.district + " · Email: " + o.email));
+                    lastSearchHits.add(new SearchResultItem(o.nameEn, o.district, () -> {
+                        if (getActivity() instanceof MainActivity) {
+                            ((MainActivity) getActivity()).selectTab(R.id.nav_offices);
+                        }
+                    }));
+                }
+            }
+
+            new com.example.civiclens.data.ProjectRepository(requireContext()).getProjects(projects -> {
+                if (!isAdded()) return;
+                for (com.example.civiclens.model.PublicProject p : projects) {
+                    if (p.name.toLowerCase().contains(queryLower) || p.district.toLowerCase().contains(queryLower)) {
+                        lines.add(new LineAdapter.Line("🏗️ " + p.name, "[Public Project] · " + p.district + " · Budget BDT " + (p.budgetBdt / 10000000L) + " Cr"));
+                        lastSearchHits.add(new SearchResultItem(p.name, p.district, () ->
+                                startActivity(ProjectDetailActivity.intent(requireContext(), p.id))));
+                    }
+                }
+
+                universalAdapter.submit(lines);
+                emptyText.setVisibility(lines.isEmpty() ? View.VISIBLE : View.GONE);
+            });
+        });
     }
 }
