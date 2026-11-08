@@ -102,6 +102,18 @@
                 app:icon="@drawable/ic_doc"
                 app:iconTint="@color/green" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGpsPinpoint"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:minHeight="48dp"
+                android:text="📍 Drop GPS Location Pin (Map Pinpoint)"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_pin"
+                app:iconTint="@color/navy" />
+
             <ImageView
                 android:id="@+id/photoPreview"
                 android:layout_width="match_parent"

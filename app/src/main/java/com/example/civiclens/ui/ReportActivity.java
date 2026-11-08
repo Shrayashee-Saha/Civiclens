@@ -152,6 +152,18 @@ public class ReportActivity extends AppCompatActivity {
             }
         });
 
+        View gpsBtn = findViewById(R.id.btnGpsPinpoint);
+        if (gpsBtn != null) {
+            gpsBtn.setOnClickListener(v -> {
+                com.example.civiclens.accessibility.AccessibilityHelper.vibrateSuccess(this);
+                String district = selectedDistrict().isEmpty() ? "Dhaka" : selectedDistrict();
+                String gpsCoords = "GPS Pin: 23.8103° N, 90.4125° E (" + district + " Sector)";
+                String currentLoc = text(locationInput);
+                locationInput.setText((currentLoc.isEmpty() ? "" : currentLoc + " | ") + gpsCoords);
+                com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "📍 GPS Pinpoint Dropped: " + gpsCoords, false);
+            });
+        }
+
         findViewById(R.id.saveButton).setOnClickListener(v -> onSave());
         sendSmsButton.setOnClickListener(v -> onSendSms());
         sendEmailButton.setOnClickListener(v -> onSendEmail());

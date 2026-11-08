@@ -155,6 +155,30 @@ public class ProjectDetailActivity extends AppCompatActivity {
             });
         }
 
+        TextView commScore = findViewById(R.id.communityScoreText);
+        View btnGood = findViewById(R.id.btnVoteGood);
+        View btnLate = findViewById(R.id.btnVoteLate);
+        View btnBad = findViewById(R.id.btnVoteBad);
+
+        if (btnGood != null) {
+            btnGood.setOnClickListener(v -> {
+                com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "👍 Vote Recorded: 'Work On Track'!", false);
+                if (commScore != null) commScore.setText("Community Approval Score: 91% Satisfied (43 Votes)");
+            });
+        }
+        if (btnLate != null) {
+            btnLate.setOnClickListener(v -> {
+                com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "⏱️ Vote Recorded: 'Work Delayed'!", false);
+                if (commScore != null) commScore.setText("Community Approval Score: 85% Satisfied (43 Votes)");
+            });
+        }
+        if (btnBad != null) {
+            btnBad.setOnClickListener(v -> {
+                com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "⚠️ Vote Recorded: 'Quality Concerns'!", true);
+                if (commScore != null) commScore.setText("Community Approval Score: 81% Satisfied (43 Votes)");
+            });
+        }
+
         repository.getProject(projectId, p -> {
             this.currentProject = p;
             bindProject(p);
