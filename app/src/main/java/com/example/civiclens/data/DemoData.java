@@ -62,6 +62,51 @@ public final class DemoData {
                 "Free (Government Financial Assistance)", "Annual application cycle",
                 "2024-04-12", true, false, false));
 
+        list.add(service("electricity_connection", "Smart Electricity Connection & Meter Recharge",
+                "Utilities & Power",
+                "DESCO / BREB / BPDB / NESCO Electricity Utility",
+                "electricity power meter connection prepaid recharge desco breb bpdb nesco bill",
+                "New electricity connection, smart prepaid meter token recharge, and power outage grievance logging.",
+                "https://desco.gov.bd", "https://reb.gov.bd",
+                "1,150 - 3,500 BDT (Security deposit & connection fee)", "3 - 7 working days",
+                "2024-09-01", true, true, false));
+
+        list.add(service("land_mutation", "Digital Land Mutation (ই-নামজারি & Khatian Update)",
+                "Land & Revenue",
+                "Ministry of Land & Assistant Commissioner (Land) Office",
+                "land mutation namjari e-namjari khatian ac land deed property transfer",
+                "Online application for land ownership mutation, e-Namjari record creation, and official Khatian issuance.",
+                "https://mutation.land.gov.bd", "https://land.gov.bd",
+                "1,170 BDT (Fixed government fee)", "28 - 45 working days",
+                "2024-08-25", true, true, false));
+
+        list.add(service("eporcha_land_record", "E-Porcha Record Search & Certified Copy Download",
+                "Land & Revenue",
+                "Department of Land Records and Surveys (DLRS)",
+                "eporcha porcha khatian mouza map certified copy land survey RS BS CS SA",
+                "Search, verify, and order certified copies of CS, SA, RS, and BS Khatian land survey records and Mouza maps.",
+                "https://eporcha.gov.bd", "https://dlrs.gov.bd",
+                "100 BDT per certified copy", "3 - 7 working days",
+                "2024-08-15", true, false, false));
+
+        list.add(service("land_tax_payment", "Digital Land Development Tax (ভূমি উন্নয়ন কর / খাজনা)",
+                "Land & Revenue",
+                "Ministry of Land, Government of Bangladesh",
+                "land tax development tax khajna holding online payment ldtax",
+                "Calculate and pay annual Land Development Tax (Khajna) digitally via e-Challan and mobile financial services.",
+                "https://ldtax.gov.bd", "https://land.gov.bd",
+                "Calculated based on land area & category (residential/commercial)", "Instant e-Receipt issuance",
+                "2024-09-05", true, false, false));
+
+        list.add(service("wasa_water_connection", "WASA Smart Water & Sewerage Line Connection",
+                "Utilities & Power",
+                "Dhaka / Chattogram / Rajshahi WASA Authority",
+                "water connection WASA sewerage bill payment pipeline supply meter",
+                "Apply for new residential or commercial piped water supply and sewerage line connection.",
+                "https://dwasa.org.bd", "https://cwasa.org.bd",
+                "2,500 - 8,000 BDT (based on pipe diameter)", "10 - 15 working days",
+                "2024-07-20", true, true, false));
+
         return list;
     }
 
@@ -100,6 +145,28 @@ public final class DemoData {
         doc(list, "edu_stipend", 1, true, "Student ID & Enrolment Certificate", "");
         doc(list, "edu_stipend", 2, true, "Previous Board Result / Marksheet", "");
         doc(list, "edu_stipend", 3, true, "Guardian NID & Mobile Financial Account (Nagad/Bkash)", "");
+
+        doc(list, "electricity_connection", 1, true, "Applicant National ID (NID)", "For identity verification.");
+        doc(list, "electricity_connection", 2, true, "Land Deed or Premises Holding Document", "Proof of house/commercial ownership.");
+        doc(list, "electricity_connection", 3, true, "Electrical Wiring Inspection Test Certificate", "Issued by licensed wiring inspector.");
+        doc(list, "electricity_connection", 4, false, "Trade License Copy (if commercial connection)", "");
+
+        doc(list, "land_mutation", 1, true, "Registered Land Deed (দলিল) Copy", "Primary title deed.");
+        doc(list, "land_mutation", 2, true, "Latest Khatian / Porcha Record", "Previous CS/SA/RS survey record.");
+        doc(list, "land_mutation", 3, true, "Land Development Tax Receipt (খাজনা দাখিলা)", "Up-to-date tax clearance.");
+        doc(list, "land_mutation", 4, false, "Inheritance Certificate (ওয়ারিশ সনদ)", "If property acquired by inheritance.");
+
+        doc(list, "eporcha_land_record", 1, true, "District, Upazila & Mouza Name", "For search index matching.");
+        doc(list, "eporcha_land_record", 2, true, "Khatian Number or Dag (Plot) Number", "");
+        doc(list, "eporcha_land_record", 3, true, "Applicant NID & Mobile Number", "To receive digital delivery.");
+
+        doc(list, "land_tax_payment", 1, true, "NID & Mobile Number Registered on ldtax.gov.bd", "");
+        doc(list, "land_tax_payment", 2, true, "Khatian & Dag (Plot) Particulars", "");
+        doc(list, "land_tax_payment", 3, true, "Previous Year Tax Receipt (داখিলা)", "");
+
+        doc(list, "wasa_water_connection", 1, true, "Approved Building Layout Plan from RAJUK / City Corp", "");
+        doc(list, "wasa_water_connection", 2, true, "Land Ownership Deed / Holding Tax Receipt", "");
+        doc(list, "wasa_water_connection", 3, true, "Applicant NID Copy & Passport Photo", "");
 
         return list;
     }

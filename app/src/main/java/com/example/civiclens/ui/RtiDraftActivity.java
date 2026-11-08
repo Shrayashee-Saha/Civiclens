@@ -59,6 +59,14 @@ public class RtiDraftActivity extends AppCompatActivity {
         generate.setOnClickListener(v -> onGenerate());
         copyButton.setOnClickListener(v -> onCopy());
 
+        MaterialButton readVoiceBtn = findViewById(R.id.readRtiVoiceButton);
+        if (readVoiceBtn != null) {
+            readVoiceBtn.setOnClickListener(v -> {
+                com.example.civiclens.accessibility.AccessibilityHelper.vibrateSuccess(this);
+                com.example.civiclens.accessibility.AccessibilityHelper.speak(this, resultText.getText().toString());
+            });
+        }
+
         if (projectId != null) {
             repository.getProject(projectId, p -> {
                 this.project = p;
@@ -103,6 +111,12 @@ public class RtiDraftActivity extends AppCompatActivity {
         resultText.setText(sb.toString());
         resultText.setVisibility(View.VISIBLE);
         copyButton.setVisibility(View.VISIBLE);
+        View readVoiceBtn = findViewById(R.id.readRtiVoiceButton);
+        if (readVoiceBtn != null) {
+            readVoiceBtn.setVisibility(View.VISIBLE);
+        }
+        com.example.civiclens.accessibility.AccessibilityHelper.vibrateSuccess(this);
+        com.example.civiclens.accessibility.AccessibilityHelper.speak(this, "RTI application form Ka generated successfully.");
     }
 
     private void onCopy() {
@@ -110,11 +124,17 @@ public class RtiDraftActivity extends AppCompatActivity {
         ClipData clip = ClipData.newPlainText("RTI Draft", resultText.getText().toString());
         if (clipboard != null) {
             clipboard.setPrimaryClip(clip);
-            Toast.makeText(this, "RTI application draft copied to clipboard!", Toast.LENGTH_SHORT).show();
+            com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "RTI application draft copied to clipboard!", false);
         }
     }
 
     private static String text(TextInputEditText input) {
         return input.getText() == null ? "" : input.getText().toString().trim();
+    }
+
+    @Override
+    protected void onDestroy() {
+        com.example.civiclens.accessibility.AccessibilityHelper.stop();
+        super.onDestroy();
     }
 }

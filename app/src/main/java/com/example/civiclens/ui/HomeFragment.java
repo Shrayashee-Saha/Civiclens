@@ -122,6 +122,11 @@ public class HomeFragment extends Fragment {
     }
 
     private void render() {
+        if (currentQuery == null || currentQuery.trim().isEmpty()) {
+            adapter.submit(new ArrayList<>());
+            emptyText.setVisibility(View.GONE);
+            return;
+        }
         List<GovernmentService> results = SearchRanker.rank(currentQuery, allServices);
         adapter.submit(results);
         emptyText.setVisibility(results.isEmpty() ? View.VISIBLE : View.GONE);

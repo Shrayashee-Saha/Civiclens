@@ -151,6 +151,16 @@
                 app:icon="@drawable/ic_sparkle"
                 app:iconTint="@color/navy" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReadAccountabilityVoice"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:minHeight="44dp"
+                android:text="🔊 Read Investigations Aloud (Voice Guidance)"
+                app:cornerRadius="12dp" />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
