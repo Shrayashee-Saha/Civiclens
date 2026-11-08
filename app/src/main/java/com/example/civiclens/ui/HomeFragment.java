@@ -51,6 +51,7 @@ public class HomeFragment extends Fragment {
 
         RecyclerView results = view.findViewById(R.id.resultsList);
         results.setLayoutManager(new LinearLayoutManager(requireContext()));
+        results.setNestedScrollingEnabled(false);
         adapter = new ServiceAdapter(service ->
                 startActivity(ServiceDetailActivity.intent(requireContext(), service.id)));
         results.setAdapter(adapter);
