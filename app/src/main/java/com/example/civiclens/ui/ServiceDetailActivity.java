@@ -92,6 +92,20 @@ public class ServiceDetailActivity extends AppCompatActivity {
         findViewById(R.id.shareButton).setOnClickListener(v -> shareService());
         findViewById(R.id.feedbackButton).setOnClickListener(v -> showFeedbackDialog());
 
+        View readVoiceBtn = findViewById(R.id.readServiceVoiceButton);
+        if (readVoiceBtn != null) {
+            readVoiceBtn.setOnClickListener(v -> {
+                com.example.civiclens.accessibility.AccessibilityHelper.vibrateSuccess(this);
+                StringBuilder sb = new StringBuilder("Service: ").append(serviceName).append(". ");
+                sb.append("Authority: ").append(((TextView) findViewById(R.id.serviceAuthority)).getText()).append(". ");
+                sb.append("Description: ").append(((TextView) findViewById(R.id.serviceDescription)).getText()).append(". ");
+                sb.append("Fees: ").append(((TextView) findViewById(R.id.serviceFees)).getText()).append(". ");
+                sb.append("Processing: ").append(((TextView) findViewById(R.id.serviceProcessing)).getText()).append(". ");
+                sb.append("Readiness Progress: ").append(progressText.getText());
+                com.example.civiclens.accessibility.AccessibilityHelper.speak(this, sb.toString());
+            });
+        }
+
         RecyclerView docList = findViewById(R.id.documentList);
         docList.setLayoutManager(new LinearLayoutManager(this));
         docList.setNestedScrollingEnabled(false);
@@ -245,5 +259,11 @@ public class ServiceDetailActivity extends AppCompatActivity {
             remainingText.setText(getString(R.string.remaining_prefix)
                     + TextUtils.join(", ", result.remaining));
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        com.example.civiclens.accessibility.AccessibilityHelper.stop();
+        super.onDestroy();
     }
 }

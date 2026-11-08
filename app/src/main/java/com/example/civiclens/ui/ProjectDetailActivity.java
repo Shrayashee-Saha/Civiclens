@@ -136,6 +136,25 @@ public class ProjectDetailActivity extends AppCompatActivity {
             });
         }
 
+        View readProjectVoiceBtn = findViewById(R.id.readProjectVoiceButton);
+        if (readProjectVoiceBtn != null) {
+            readProjectVoiceBtn.setOnClickListener(v -> {
+                com.example.civiclens.accessibility.AccessibilityHelper.vibrateSuccess(this);
+                if (currentProject != null) {
+                    StringBuilder sb = new StringBuilder("Project: ").append(currentProject.name).append(". ");
+                    sb.append("Agency: ").append(currentProject.agency).append(". ");
+                    sb.append("Location: ").append(currentProject.district).append(". ");
+                    sb.append("Budget: BDT ").append(currentProject.budgetBdt).append(". ");
+                    sb.append("Milestone Schedule: ").append(progressText.getText()).append(". ");
+                    TextView scoreText = findViewById(R.id.realityIndexScoreText);
+                    if (scoreText != null) {
+                        sb.append("Reality Index: ").append(scoreText.getText());
+                    }
+                    com.example.civiclens.accessibility.AccessibilityHelper.speak(this, sb.toString());
+                }
+            });
+        }
+
         repository.getProject(projectId, p -> {
             this.currentProject = p;
             bindProject(p);
@@ -318,5 +337,11 @@ public class ProjectDetailActivity extends AppCompatActivity {
 
     private static String formatTime(long millis) {
         return new SimpleDateFormat("d MMM yyyy, HH:mm", Locale.getDefault()).format(new Date(millis));
+    }
+
+    @Override
+    protected void onDestroy() {
+        com.example.civiclens.accessibility.AccessibilityHelper.stop();
+        super.onDestroy();
     }
 }

@@ -89,6 +89,16 @@
                 app:icon="@drawable/ic_bell"
                 app:iconTint="@color/green" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/readProjectVoiceButton"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:minHeight="48dp"
+                android:text="🔊 Read Project Details Aloud (Voice Guidance)"
+                app:cornerRadius="8dp" />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
