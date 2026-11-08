@@ -67,6 +67,13 @@ public class RtiDraftActivity extends AppCompatActivity {
             });
         }
 
+        View exportPdfBtn = findViewById(R.id.exportPdfRtiButton);
+        if (exportPdfBtn != null) {
+            exportPdfBtn.setOnClickListener(v -> {
+                com.example.civiclens.accessibility.AccessibilityHelper.exportToPdf(this, "RTI_Application_Form_Ka", resultText.getText().toString());
+            });
+        }
+
         if (projectId != null) {
             repository.getProject(projectId, p -> {
                 this.project = p;
@@ -114,6 +121,10 @@ public class RtiDraftActivity extends AppCompatActivity {
         View readVoiceBtn = findViewById(R.id.readRtiVoiceButton);
         if (readVoiceBtn != null) {
             readVoiceBtn.setVisibility(View.VISIBLE);
+        }
+        View exportPdfBtn = findViewById(R.id.exportPdfRtiButton);
+        if (exportPdfBtn != null) {
+            exportPdfBtn.setVisibility(View.VISIBLE);
         }
         com.example.civiclens.accessibility.AccessibilityHelper.vibrateSuccess(this);
         com.example.civiclens.accessibility.AccessibilityHelper.speak(this, "RTI application form Ka generated successfully.");

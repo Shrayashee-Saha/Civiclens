@@ -54,12 +54,42 @@ public class AskActivity extends AppCompatActivity {
 
         askButton.setOnClickListener(v -> onAsk());
 
+        MaterialButton micBtn = findViewById(R.id.micVoiceButton);
+        if (micBtn != null) {
+            micBtn.setOnClickListener(v -> startVoiceRecognition());
+        }
+
         MaterialButton readAloudBtn = findViewById(R.id.readAloudButton);
         if (readAloudBtn != null) {
             readAloudBtn.setOnClickListener(v -> {
                 com.example.civiclens.accessibility.AccessibilityHelper.vibrateSuccess(this);
                 com.example.civiclens.accessibility.AccessibilityHelper.speak(this, answerText.getText().toString());
             });
+        }
+    }
+
+    private final androidx.activity.result.ActivityResultLauncher<android.content.Intent> speechLauncher = registerForActivityResult(
+            new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    List<String> matches = result.getData().getStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS);
+                    if (matches != null && !matches.isEmpty()) {
+                        String spokenText = matches.get(0);
+                        questionInput.setText(spokenText);
+                        com.example.civiclens.accessibility.AccessibilityHelper.vibrateSuccess(this);
+                        onAsk();
+                    }
+                }
+            });
+
+    private void startVoiceRecognition() {
+        android.content.Intent intent = new android.content.Intent(android.speech.RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE_MODEL, android.speech.RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE, "bn-BD");
+        intent.putExtra(android.speech.RecognizerIntent.EXTRA_PROMPT, "Speak your question in Bangla or English...");
+        try {
+            speechLauncher.launch(intent);
+        } catch (Exception e) {
+            android.widget.Toast.makeText(this, "Voice recognition not available on this device.", android.widget.Toast.LENGTH_SHORT).show();
         }
     }
 

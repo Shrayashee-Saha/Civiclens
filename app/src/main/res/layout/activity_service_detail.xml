@@ -223,6 +223,16 @@
                 android:layout_marginTop="4dp"
                 android:textColor="@color/text_secondary" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnScanDocCamera"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:minHeight="48dp"
+                android:text="📸 Scan Document Readiness (AI Camera Inspector)"
+                app:cornerRadius="8dp" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/documentList"
                 android:layout_width="match_parent"

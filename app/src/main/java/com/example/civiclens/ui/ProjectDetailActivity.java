@@ -270,6 +270,26 @@ public class ProjectDetailActivity extends AppCompatActivity {
             scoreText.setText(getString(R.string.reality_index_format, result.score, result.statusLabel));
             breakdownText.setText(result.breakdown);
         }
+
+        TextView delayCalcText = findViewById(R.id.delayCalculatorText);
+        if (delayCalcText != null && currentProject != null) {
+            ProjectAnalyzer.ProgressGapResult gapResult = ProjectAnalyzer.evaluateGap(currentProject);
+            long budgetCrore = currentProject.budgetBdt / 10000000L;
+            double dailyOverrunCostLakh = (budgetCrore * 0.05);
+
+            StringBuilder calc = new StringBuilder();
+            if (gapResult.isDelayed) {
+                calc.append("• Schedule Status: ").append(gapResult.explanation).append("\n");
+                calc.append("• Total Budget: BDT ").append(budgetCrore).append(" Crore\n");
+                calc.append("• Estimated Daily Economic / Overhead Loss: ~BDT ").append(String.format(Locale.US, "%.2f", dailyOverrunCostLakh)).append(" Lakh / day\n");
+                calc.append("• Status Flag: High Project Schedule Gap Risk");
+            } else {
+                calc.append("• Schedule Status: On-Time Schedule Alignment\n");
+                calc.append("• Total Budget: BDT ").append(budgetCrore).append(" Crore\n");
+                calc.append("• Cost Overrun Risk: Low (Within Approved Allocation)");
+            }
+            delayCalcText.setText(calc.toString());
+        }
     }
 
     private void updateSubscribeButtonText(MaterialButton btn, boolean subscribed) {

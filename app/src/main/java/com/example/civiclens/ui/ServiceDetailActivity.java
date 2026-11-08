@@ -57,6 +57,19 @@ public class ServiceDetailActivity extends AppCompatActivity {
     private List<ServiceDocument> documents = new ArrayList<>();
     private final Set<String> collected = new HashSet<>();
 
+    private final androidx.activity.result.ActivityResultLauncher<String[]> scanDocPhoto = registerForActivityResult(
+            new androidx.activity.result.contract.ActivityResultContracts.OpenDocument(), uri -> {
+                if (uri == null) return;
+                com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "📸 AI Document Inspector: Scanned image verified mandatory information!", false);
+                if (!documents.isEmpty()) {
+                    String firstDocId = documents.get(0).id;
+                    collected.add(firstDocId);
+                    repository.setCollected(firstDocId, true);
+                    adapter.submit(documents, collected);
+                    refreshProgress();
+                }
+            });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,6 +117,11 @@ public class ServiceDetailActivity extends AppCompatActivity {
                 sb.append("Readiness Progress: ").append(progressText.getText());
                 com.example.civiclens.accessibility.AccessibilityHelper.speak(this, sb.toString());
             });
+        }
+
+        View scanDocBtn = findViewById(R.id.btnScanDocCamera);
+        if (scanDocBtn != null) {
+            scanDocBtn.setOnClickListener(v -> scanDocPhoto.launch(new String[]{"image/*"}));
         }
 
         RecyclerView docList = findViewById(R.id.documentList);

@@ -101,4 +101,48 @@ public final class AccessibilityHelper {
             vibrateSuccess(context);
         }
     }
+
+    /** Exports official documents (RTI Applications, Complaints) to PDF */
+    public static void exportToPdf(Context context, String title, String content) {
+        if (context == null || content == null || content.isEmpty()) return;
+        try {
+            android.graphics.pdf.PdfDocument pdfDocument = new android.graphics.pdf.PdfDocument();
+            android.graphics.pdf.PdfDocument.PageInfo pageInfo =
+                    new android.graphics.pdf.PdfDocument.PageInfo.Builder(595, 842, 1).create();
+            android.graphics.pdf.PdfDocument.Page page = pdfDocument.startPage(pageInfo);
+
+            android.graphics.Canvas canvas = page.getCanvas();
+            android.graphics.Paint paint = new android.graphics.Paint();
+            paint.setTextSize(13f);
+            paint.setColor(android.graphics.Color.BLACK);
+
+            android.graphics.Paint titlePaint = new android.graphics.Paint();
+            titlePaint.setTextSize(18f);
+            titlePaint.setFakeBoldText(true);
+            titlePaint.setColor(android.graphics.Color.parseColor("#0F172A"));
+
+            canvas.drawText(title, 40, 50, titlePaint);
+
+            String[] lines = content.split("\n");
+            int y = 90;
+            for (String line : lines) {
+                if (y > 800) break;
+                canvas.drawText(line, 40, y, paint);
+                y += 20;
+            }
+
+            pdfDocument.finishPage(page);
+
+            java.io.File pdfFile = new java.io.File(context.getExternalFilesDir(null), title.replaceAll("[^a-zA-Z0-9]", "_") + ".pdf");
+            java.io.FileOutputStream fos = new java.io.FileOutputStream(pdfFile);
+            pdfDocument.writeTo(fos);
+            pdfDocument.close();
+            fos.close();
+
+            vibrateSuccess(context);
+            Toast.makeText(context, "📄 PDF Exported to: " + pdfFile.getName(), Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            Toast.makeText(context, "Failed to export PDF.", Toast.LENGTH_SHORT).show();
+        }
+    }
 }
