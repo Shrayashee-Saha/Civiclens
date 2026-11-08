@@ -118,7 +118,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="#FFF4E0"
+                android:background="@color/warning_bg"
                 android:padding="12dp"
                 android:text="@string/demo_disclaimer"
                 android:textColor="@color/warning"

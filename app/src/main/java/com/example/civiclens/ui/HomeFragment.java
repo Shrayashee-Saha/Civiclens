@@ -196,8 +196,31 @@ public class HomeFragment extends Fragment {
                     }
                 }
 
-                universalAdapter.submit(lines);
-                emptyText.setVisibility(lines.isEmpty() ? View.VISIBLE : View.GONE);
+                new com.example.civiclens.data.ProjectRepository(requireContext()).getAccountabilityCases(cases -> {
+                    if (!isAdded()) return;
+                    for (com.example.civiclens.model.AccountabilityCase c : cases) {
+                        if (c.title.toLowerCase().contains(queryLower) || c.reportedConcern.toLowerCase().contains(queryLower)) {
+                            lines.add(new LineAdapter.Line("🛡️ " + c.title, "[Accountability Watch] · " + c.investigationStatus + " · " + c.publisher));
+                            lastSearchHits.add(new SearchResultItem(c.title, c.publisher, () ->
+                                    startActivity(new Intent(requireContext(), AccountabilityActivity.class))));
+                        }
+                    }
+
+                    if ("999".contains(queryLower) || "333".contains(queryLower) || "106".contains(queryLower) || "helpline".contains(queryLower) || "emergency".contains(queryLower)) {
+                        lines.add(new LineAdapter.Line("📞 Emergency & Civic Helplines Hub (999, 333, 106, 16263)", "[Helplines] · One-Tap Toll-Free Emergency Dialer"));
+                        lastSearchHits.add(new SearchResultItem("Emergency Helplines", "999/333/106", () ->
+                                startActivity(new Intent(requireContext(), HelplinesActivity.class))));
+                    }
+
+                    if ("rti".contains(queryLower) || "form ka".contains(queryLower) || "information".contains(queryLower) || "application".contains(queryLower)) {
+                        lines.add(new LineAdapter.Line("📄 Right to Information (RTI Form Ka) Assistant", "[Legal Draft] · Generate Official Information Request Draft"));
+                        lastSearchHits.add(new SearchResultItem("RTI Assistant", "Form Ka", () ->
+                                startActivity(new Intent(requireContext(), RtiDraftActivity.class))));
+                    }
+
+                    universalAdapter.submit(lines);
+                    emptyText.setVisibility(lines.isEmpty() ? View.VISIBLE : View.GONE);
+                });
             });
         });
     }
