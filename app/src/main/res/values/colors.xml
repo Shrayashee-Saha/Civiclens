@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Navy for trust, Bangladesh green for progress, red accent for alerts. -->
-    <color name="navy">#101828</color>
+    <!-- Modern Slate Navy, Emerald Green, and Crisp Surface Palette -->
+    <color name="navy">#0F172A</color>
     <color name="navy_light">#1E293B</color>
-    <color name="navy_dark">#0F172A</color>
-    <color name="green">#027A48</color>
-    <color name="green_dark">#05603A</color>
+    <color name="navy_dark">#020617</color>
+    <color name="green">#059669</color>
+    <color name="green_dark">#047857</color>
     <color name="green_light">#ECFDF5</color>
-    <color name="accent_red">#D92D20</color>
-    <color name="gold">#F59E0B</color>
+    <color name="accent_red">#DC2626</color>
+    <color name="gold">#D97706</color>
     <color name="surface">#F8FAFC</color>
     <color name="white">#FFFFFF</color>
-    <color name="text_secondary">#475467</color>
-    <color name="text_hint">#98A2B3</color>
-    <color name="warning">#B54708</color>
-    <color name="warning_bg">#FFFAEB</color>
-    <color name="stroke">#EAECF0</color>
+    <color name="text_secondary">#475569</color>
+    <color name="text_hint">#94A3B8</color>
+    <color name="warning">#B45309</color>
+    <color name="warning_bg">#FFFBEB</color>
+    <color name="stroke">#E2E8F0</color>
 </resources>
