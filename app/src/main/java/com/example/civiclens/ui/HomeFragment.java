@@ -65,7 +65,12 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        bindQuickAction(view, R.id.quickFind, null);
+        MaterialCardView quickFindCard = view.findViewById(R.id.quickFind);
+        if (quickFindCard != null) {
+            quickFindCard.setOnClickListener(v ->
+                    startActivity(new Intent(requireContext(), ServicesActivity.class)));
+        }
+
         bindQuickAction(view, R.id.quickOffices, R.id.nav_offices);
         bindQuickAction(view, R.id.quickSaved, R.id.nav_my_services);
 
