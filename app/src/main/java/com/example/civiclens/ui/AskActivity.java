@@ -53,6 +53,14 @@ public class AskActivity extends AppCompatActivity {
         answerText = findViewById(R.id.answerText);
 
         askButton.setOnClickListener(v -> onAsk());
+
+        MaterialButton readAloudBtn = findViewById(R.id.readAloudButton);
+        if (readAloudBtn != null) {
+            readAloudBtn.setOnClickListener(v -> {
+                com.example.civiclens.accessibility.AccessibilityHelper.vibrateSuccess(this);
+                com.example.civiclens.accessibility.AccessibilityHelper.speak(this, answerText.getText().toString());
+            });
+        }
     }
 
     private void onAsk() {
@@ -91,6 +99,14 @@ public class AskActivity extends AppCompatActivity {
     private void showAnswer(String reply) {
         setBusy(false);
         answerText.setText(reply + "\n\n" + getString(R.string.ask_disclaimer));
+        com.example.civiclens.accessibility.AccessibilityHelper.vibrateSuccess(this);
+        com.example.civiclens.accessibility.AccessibilityHelper.speak(this, reply);
+    }
+
+    @Override
+    protected void onDestroy() {
+        com.example.civiclens.accessibility.AccessibilityHelper.stop();
+        super.onDestroy();
     }
 
     /** Shows the verified records directly, without any AI, as the fallback. */
