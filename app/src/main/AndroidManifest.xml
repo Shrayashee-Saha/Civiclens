@@ -49,6 +49,11 @@
         </activity>
 
         <activity
+            android:name="com.example.civiclens.ui.VaultActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
+
+        <activity
             android:name="com.example.civiclens.ui.HelplinesActivity"
             android:exported="false"
             android:parentActivityName="com.example.civiclens.ui.MainActivity" />
