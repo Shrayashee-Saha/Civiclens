@@ -8,6 +8,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <!-- Apps this app opens or checks for (Android 11+ needs these declared to see them). -->
     <queries>
@@ -47,6 +50,31 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.example.civiclens.ui.AgoraCallActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
+
+        <activity
+            android:name="com.example.civiclens.ui.CivicCommunitiesActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
+
+        <activity
+            android:name="com.example.civiclens.ui.CreateGroupActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
+
+        <activity
+            android:name="com.example.civiclens.ui.CivicFeedActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
+
+        <activity
+            android:name="com.example.civiclens.ui.CivicGroupActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
 
         <activity
             android:name="com.example.civiclens.ui.VaultActivity"

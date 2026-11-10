@@ -133,6 +133,16 @@ public class HomeFragment extends Fragment {
             mapExplorer.setOnClickListener(v -> startActivity(new Intent(requireContext(), DivisionMapActivity.class)));
         }
 
+        MaterialButton feedBtn = view.findViewById(R.id.civicFeedButton);
+        if (feedBtn != null) {
+            feedBtn.setOnClickListener(v -> startActivity(new Intent(requireContext(), CivicFeedActivity.class)));
+        }
+
+        MaterialButton commsBtn = view.findViewById(R.id.btnCivicCommunities);
+        if (commsBtn != null) {
+            commsBtn.setOnClickListener(v -> startActivity(new Intent(requireContext(), CivicCommunitiesActivity.class)));
+        }
+
         new ServiceRepository(requireContext()).getAllServices(list -> {
             if (!isAdded()) return;
             allServices = list;

@@ -19,6 +19,7 @@ def testEmail = localProps.getProperty('test.email', '')
 def newsApiKey = localProps.getProperty('news.api.key', '')
 def rssFeedUrl = localProps.getProperty('rss.feed.url', 'https://www.tbsnews.net/rss.xml')
 def geminiApiKey = localProps.getProperty('gemini.api.key', '')
+def agoraAppId = localProps.getProperty('agora.app.id', 'e3d48911f9814c33a21644781742a781')
 
 // Firebase only activates when app/google-services.json is present, so the app still
 // builds and runs without it. Download the file from the Firebase console.
@@ -41,6 +42,11 @@ android {
         buildConfigField "String", "NEWS_API_KEY", "\"${newsApiKey}\""
         buildConfigField "String", "RSS_FEED_URL", "\"${rssFeedUrl}\""
         buildConfigField "String", "GEMINI_API_KEY", "\"${geminiApiKey}\""
+        buildConfigField "String", "AGORA_APP_ID", "\"${agoraAppId}\""
+
+        ndk {
+            abiFilters 'arm64-v8a', 'x86_64'
+        }
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -70,6 +76,12 @@ android {
         viewBinding true
         buildConfig true
     }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
 }
 
 dependencies {
@@ -97,6 +109,9 @@ dependencies {
 
     // Used by the content provider's raw SQL query.
     implementation 'androidx.sqlite:sqlite:2.4.0'
+
+    // Agora Real-Time Communication (RTC) SDK for Voice & Video Calling
+    implementation 'io.agora.rtc:full-sdk:4.5.0'
 
     testImplementation 'junit:junit:4.13.2'
 }

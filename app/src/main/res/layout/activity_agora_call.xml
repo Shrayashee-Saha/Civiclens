@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/navy_dark">
+
+    <FrameLayout
+        android:id="@+id/remoteVideoContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/navy_dark">
+
+        <TextView
+            android:id="@+id/callStatusText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Agora RTC Call Room Connecting..."
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </FrameLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="120dp"
+        android:layout_height="160dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:strokeColor="@color/green"
+        app:strokeWidth="2dp">
+
+        <FrameLayout
+            android:id="@+id/localVideoContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/navy" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="32dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnMuteAudio"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:contentDescription="Mute Mic"
+            app:cornerRadius="28dp"
+            app:icon="@drawable/ic_call"
+            app:iconGravity="textStart"
+            app:iconTint="@color/navy" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEndCall"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginStart="24dp"
+            android:contentDescription="End Call"
+            app:backgroundTint="@color/accent_red"
+            app:cornerRadius="32dp"
+            app:icon="@drawable/ic_call"
+            app:iconGravity="textStart"
+            app:iconTint="@color/white" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSwitchCamera"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="24dp"
+            android:contentDescription="Switch Camera"
+            app:cornerRadius="28dp"
+            app:icon="@drawable/ic_sparkle"
+            app:iconGravity="textStart"
+            app:iconTint="@color/navy" />
+    </LinearLayout>
+</RelativeLayout>

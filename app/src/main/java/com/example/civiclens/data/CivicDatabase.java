@@ -35,9 +35,12 @@ import java.util.concurrent.Executors;
                 Reminder.class,
                 CitizenReport.class,
                 com.example.civiclens.model.AccountabilityCase.class,
-                com.example.civiclens.model.ProjectContribution.class
+                com.example.civiclens.model.ProjectContribution.class,
+                com.example.civiclens.model.CivicPost.class,
+                com.example.civiclens.model.CivicCommunity.class,
+                com.example.civiclens.model.GroupMessage.class
         },
-        version = 9,
+        version = 10,
         exportSchema = false)
 public abstract class CivicDatabase extends RoomDatabase {
 
@@ -53,6 +56,7 @@ public abstract class CivicDatabase extends RoomDatabase {
     public abstract ProjectDao projectDao();
     public abstract ReminderDao reminderDao();
     public abstract ReportDao reportDao();
+    public abstract CommunityDao communityDao();
 
     public static CivicDatabase get(Context context) {
         if (instance == null) {
