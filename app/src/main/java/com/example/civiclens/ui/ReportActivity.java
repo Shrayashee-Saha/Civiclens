@@ -85,6 +85,43 @@ public class ReportActivity extends AppCompatActivity {
                 }
             });
 
+    private final ActivityResultLauncher<Intent> pickContact = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Uri contactUri = result.getData().getData();
+                    if (contactUri == null) return;
+                    try (Cursor cursor = getContentResolver().query(contactUri, null, null, null, null)) {
+                        if (cursor != null && cursor.moveToFirst()) {
+                            int nameIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+                            int idIndex = cursor.getColumnIndex(ContactsContract.Contacts._ID);
+                            String name = nameIndex >= 0 ? cursor.getString(nameIndex) : "Official Contact";
+                            String id = idIndex >= 0 ? cursor.getString(idIndex) : "";
+                            String number = "";
+
+                            if (!id.isEmpty()) {
+                                try (Cursor phoneCursor = getContentResolver().query(
+                                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                                        new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER},
+                                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                                        new String[]{id}, null)) {
+                                    if (phoneCursor != null && phoneCursor.moveToFirst()) {
+                                        number = phoneCursor.getString(0);
+                                    }
+                                } catch (Exception ignored) { }
+                            }
+
+                            String contactLabel = number.isEmpty() ? name : name + " (" + number + ")";
+                            String existing = text(locationInput);
+                            String updatedNote = (existing.isEmpty() ? "" : existing + " | ") + "Official Contact: " + contactLabel;
+                            locationInput.setText(updatedNote);
+                            com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "👤 Contact Picked: " + contactLabel, false);
+                        }
+                    } catch (Exception e) {
+                        Toast.makeText(this, "Failed to read contact info", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
     /** Gallery and file picker. OpenDocument lets us keep read access to the photo after restart. */
     private final ActivityResultLauncher<String[]> pickPhoto = registerForActivityResult(
             new ActivityResultContracts.OpenDocument(), uri -> {
@@ -245,22 +282,11 @@ public class ReportActivity extends AppCompatActivity {
     }
 
     private void importDeviceContact() {
-        try (Cursor cursor = getContentResolver().query(
-                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                new String[]{ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER},
-                null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC")) {
-            if (cursor != null && cursor.moveToFirst()) {
-                String name = cursor.getString(0);
-                String number = cursor.getString(1);
-                String existing = text(locationInput);
-                String updatedNote = (existing.isEmpty() ? "" : existing + " | ") + "Reporter Contact: " + name + " (" + number + ")";
-                locationInput.setText(updatedNote);
-                Toast.makeText(this, "Imported contact info via ContentResolver!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "No contacts found on device", Toast.LENGTH_SHORT).show();
-            }
+        try {
+            Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+            pickContact.launch(intent);
         } catch (Exception e) {
-            Toast.makeText(this, "Error accessing device contacts provider", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error launching contact picker", Toast.LENGTH_SHORT).show();
         }
     }
 

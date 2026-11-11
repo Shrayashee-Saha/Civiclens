@@ -20,8 +20,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class CommunityRepository {
@@ -34,6 +36,8 @@ public class CommunityRepository {
         void onSuccess();
         void onError(String error);
     }
+
+    public static final List<CivicPost> GLOBAL_POST_FEED = java.util.Collections.synchronizedList(new ArrayList<>());
 
     private static final String DB_URL =
             "https://civiclens-e2000-default-rtdb.asia-southeast1.firebasedatabase.app";
@@ -51,6 +55,19 @@ public class CommunityRepository {
             root = FirebaseDatabase.getInstance(DB_URL).getReference();
         } else {
             root = null;
+        }
+    }
+
+    private DatabaseReference getRootRef() {
+        if (root != null) return root;
+        try {
+            return FirebaseDatabase.getInstance(DB_URL).getReference();
+        } catch (Exception e) {
+            try {
+                return FirebaseDatabase.getInstance().getReference();
+            } catch (Exception ignored) {
+                return null;
+            }
         }
     }
 
@@ -297,9 +314,11 @@ public class CommunityRepository {
     }
 
     public void createPost(String authorName, String category, String district, String type, String content, String mediaUrl, Runnable onDone) {
+        String uid = getUserId();
         CivicDatabase.IO.execute(() -> {
             CivicPost p = new CivicPost();
             p.id = UUID.randomUUID().toString();
+            p.authorId = uid != null ? uid : "local_user";
             p.authorName = authorName == null || authorName.isEmpty() ? "Citizen Activist" : authorName;
             p.category = category == null || category.isEmpty() ? "Environment" : category;
             p.district = district == null || district.isEmpty() ? "Dhaka" : district;
@@ -308,11 +327,16 @@ public class CommunityRepository {
             p.mediaUrl = mediaUrl;
             p.createdAt = System.currentTimeMillis();
 
+            synchronized (GLOBAL_POST_FEED) {
+                GLOBAL_POST_FEED.add(0, p);
+            }
             dao.insertPost(p);
 
-            if (root != null) {
+            DatabaseReference r = getRootRef();
+            if (r != null) {
                 Map<String, Object> data = new HashMap<>();
                 data.put("id", p.id);
+                data.put("authorId", p.authorId);
                 data.put("authorName", p.authorName);
                 data.put("category", category);
                 data.put("district", district);
@@ -321,7 +345,13 @@ public class CommunityRepository {
                 data.put("mediaUrl", mediaUrl);
                 data.put("createdAt", p.createdAt);
 
-                root.child("posts").child(p.id).setValue(data);
+                r.child("posts").child(p.id).setValue(data);
+
+                try {
+                    com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                            .collection("posts").document(p.id)
+                            .set(data, com.google.firebase.firestore.SetOptions.merge());
+                } catch (Exception ignored) { }
             }
 
             if (onDone != null) {
@@ -416,24 +446,76 @@ public class CommunityRepository {
         });
     }
 
-    public void startPostSync() {
-        if (root == null) return;
+    public void startPostSync(Runnable onPostsUpdated) {
+        DatabaseReference r = getRootRef();
+        if (r == null) return;
         stopPostSync();
+
         postListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
+                if (snapshot == null || !snapshot.exists()) return;
                 CivicDatabase.IO.execute(() -> {
+                    List<CivicPost> cloudPosts = new ArrayList<>();
                     for (DataSnapshot child : snapshot.getChildren()) {
-                        CivicPost p = child.getValue(CivicPost.class);
-                        if (p == null) continue;
-                        p.id = child.getKey();
-                        dao.insertPost(p);
+                        String id = child.getKey();
+                        String author = child.child("authorName").getValue(String.class);
+                        String category = child.child("category").getValue(String.class);
+                        String district = child.child("district").getValue(String.class);
+                        String content = child.child("content").getValue(String.class);
+                        String mediaUrl = child.child("mediaUrl").getValue(String.class);
+                        String postType = child.child("postType").getValue(String.class);
+                        Long supportCount = child.child("supportCount").getValue(Long.class);
+                        Long commentCount = child.child("commentCount").getValue(Long.class);
+                        Long shareCount = child.child("shareCount").getValue(Long.class);
+                        Long createdAt = child.child("createdAt").getValue(Long.class);
+
+                        CivicPost p = new CivicPost();
+                        p.id = id != null ? id : UUID.randomUUID().toString();
+                        p.authorName = author != null ? author : "Citizen Activist";
+                        p.category = category != null ? category : "Environment";
+                        p.district = district != null ? district : "Dhaka";
+                        p.postType = postType != null ? postType : CivicPost.TYPE_TEXT;
+                        p.content = content != null && !content.trim().isEmpty() ? content : "Civic ground observation update.";
+                        p.mediaUrl = mediaUrl != null ? mediaUrl : "";
+                        p.supportCount = supportCount != null ? supportCount.intValue() : 0;
+                        p.commentCount = commentCount != null ? commentCount.intValue() : 0;
+                        p.shareCount = shareCount != null ? shareCount.intValue() : 0;
+                        p.createdAt = createdAt != null ? createdAt : System.currentTimeMillis();
+
+                        cloudPosts.add(p);
+
+                        synchronized (GLOBAL_POST_FEED) {
+                            boolean existsInMem = false;
+                            for (CivicPost memP : GLOBAL_POST_FEED) {
+                                if (memP.id.equals(p.id)) {
+                                    existsInMem = true;
+                                    break;
+                                }
+                            }
+                            if (!existsInMem) {
+                                GLOBAL_POST_FEED.add(0, p);
+                            }
+                        }
+                    }
+                    if (!cloudPosts.isEmpty()) {
+                        dao.insertPosts(cloudPosts);
+                    }
+                    if (onPostsUpdated != null) {
+                        main.post(onPostsUpdated);
                     }
                 });
             }
+
             @Override public void onCancelled(DatabaseError error) { }
         };
-        root.child("posts").addValueEventListener(postListener);
+
+        r.child("posts").keepSynced(true);
+        r.child("posts").addValueEventListener(postListener);
+    }
+
+    public void startPostSync() {
+        startPostSync(null);
     }
 
     public void stopCommunitySync() {
@@ -444,8 +526,9 @@ public class CommunityRepository {
     }
 
     public void stopPostSync() {
-        if (root != null && postListener != null) {
-            root.child("posts").removeEventListener(postListener);
+        DatabaseReference r = getRootRef();
+        if (r != null && postListener != null) {
+            r.child("posts").removeEventListener(postListener);
             postListener = null;
         }
     }
@@ -460,28 +543,69 @@ public class CommunityRepository {
     }
 
     public void getAllPosts(Callback<List<CivicPost>> callback) {
-        CivicDatabase.IO.execute(() -> deliver(callback, dao.getAllPosts()));
+        CivicDatabase.IO.execute(() -> {
+            List<CivicPost> dbPosts = dao.getAllPosts();
+            List<CivicPost> combined = new ArrayList<>();
+            Set<String> seenIds = new HashSet<>();
+
+            synchronized (GLOBAL_POST_FEED) {
+                for (CivicPost p : GLOBAL_POST_FEED) {
+                    if (p != null && p.content != null && !p.content.isEmpty()) {
+                        combined.add(p);
+                        seenIds.add(p.id);
+                    }
+                }
+            }
+
+            if (dbPosts != null) {
+                for (CivicPost p : dbPosts) {
+                    if (p != null && p.content != null && !p.content.isEmpty() && !seenIds.contains(p.id)) {
+                        combined.add(p);
+                        seenIds.add(p.id);
+                    }
+                }
+            }
+            java.util.Collections.sort(combined, (p1, p2) -> Long.compare(p2.createdAt, p1.createdAt));
+            deliver(callback, combined);
+        });
     }
 
     public void getPostsByCategory(String category, Callback<List<CivicPost>> callback) {
         CivicDatabase.IO.execute(() -> {
-            if ("ALL".equalsIgnoreCase(category) || category == null || category.trim().isEmpty()) {
-                deliver(callback, dao.getAllPosts());
-            } else {
-                List<CivicPost> filtered = dao.getPostsByCategory(category.trim());
-                if (filtered == null || filtered.isEmpty()) {
-                    List<CivicPost> all = dao.getAllPosts();
-                    List<CivicPost> matches = new ArrayList<>();
-                    for (CivicPost p : all) {
-                        if (p.category != null && (p.category.equalsIgnoreCase(category.trim()) || p.category.contains(category.trim()))) {
-                            matches.add(p);
+            List<CivicPost> dbPosts = ("ALL".equalsIgnoreCase(category) || category == null || category.trim().isEmpty())
+                    ? dao.getAllPosts()
+                    : dao.getPostsByCategory(category.trim());
+
+            List<CivicPost> combined = new ArrayList<>();
+            Set<String> seenIds = new HashSet<>();
+
+            synchronized (GLOBAL_POST_FEED) {
+                for (CivicPost p : GLOBAL_POST_FEED) {
+                    if (p != null && p.content != null && !p.content.isEmpty()) {
+                        if ("ALL".equalsIgnoreCase(category) || category == null || category.trim().isEmpty()
+                                || (p.category != null && p.category.equalsIgnoreCase(category.trim()))
+                                || "ALL".equalsIgnoreCase(p.category)) {
+                            combined.add(p);
+                            seenIds.add(p.id);
                         }
                     }
-                    deliver(callback, matches.isEmpty() ? all : matches);
-                } else {
-                    deliver(callback, filtered);
                 }
             }
+
+            if (dbPosts != null) {
+                for (CivicPost p : dbPosts) {
+                    if (p != null && p.content != null && !p.content.isEmpty() && !seenIds.contains(p.id)) {
+                        if ("ALL".equalsIgnoreCase(category) || category == null || category.trim().isEmpty()
+                                || (p.category != null && (p.category.equalsIgnoreCase(category.trim()) || p.category.contains(category.trim())))
+                                || "ALL".equalsIgnoreCase(p.category)) {
+                            combined.add(p);
+                            seenIds.add(p.id);
+                        }
+                    }
+                }
+            }
+            java.util.Collections.sort(combined, (p1, p2) -> Long.compare(p2.createdAt, p1.createdAt));
+            deliver(callback, combined);
         });
     }
 

@@ -101,27 +101,127 @@ public class CivicFeedActivity extends AppCompatActivity {
     private void publishPost() {
         String content = postInput.getText() == null ? "" : postInput.getText().toString().trim();
         if (content.isEmpty()) {
-            Toast.makeText(this, "Please enter a public concern or update to publish.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please write your civic concern or update first.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         com.example.civiclens.auth.AuthRepository auth = new com.example.civiclens.auth.AuthRepository();
         String author = auth.currentEmail() != null ? auth.currentEmail() : "Citizen Activist";
+        String postCategory = "ALL".equalsIgnoreCase(selectedCategory) ? "Environment" : selectedCategory;
 
-        repository.createPost(author, "Environment", "Khulna", "text", content, attachedMediaUri, () -> {
-            com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "🌱 Civic Post Published to Feed!", false);
-            postInput.setText("");
-            attachedMediaUri = "";
-            loadFeed();
+        com.example.civiclens.model.CivicPost newPost = new com.example.civiclens.model.CivicPost();
+        newPost.id = java.util.UUID.randomUUID().toString();
+        newPost.authorName = author;
+        newPost.category = postCategory;
+        newPost.district = "Dhaka";
+        newPost.postType = "text";
+        newPost.content = content;
+        newPost.mediaUrl = attachedMediaUri;
+        newPost.createdAt = System.currentTimeMillis();
+
+        adapter.addPostAtTop(newPost);
+        com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "🌱 Civic Post Published Live to Feed!", false);
+        postInput.setText("");
+        attachedMediaUri = "";
+
+        repository.createPost(author, postCategory, "Dhaka", "text", content, newPost.mediaUrl, () -> loadFeed());
+    }
+
+    private com.google.firebase.firestore.ListenerRegistration firestoreFeedListener;
+
+    private void loadFeed() {
+        if (com.example.civiclens.firebase.FirebaseGate.isReady(this)) {
+            try {
+                if (firestoreFeedListener != null) {
+                    firestoreFeedListener.remove();
+                    firestoreFeedListener = null;
+                }
+
+                firestoreFeedListener = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                        .collection("posts")
+                        .addSnapshotListener((snapshot, error) -> {
+                            if (error != null || snapshot == null || snapshot.isEmpty()) {
+                                repository.getPostsByCategory(selectedCategory, posts -> {
+                                    if (!isFinishing() && !isDestroyed()) {
+                                        adapter.submit(posts != null ? posts : new java.util.ArrayList<>());
+                                    }
+                                });
+                                return;
+                            }
+
+                            java.util.List<com.example.civiclens.model.CivicPost> liveList = new java.util.ArrayList<>();
+                            for (com.google.firebase.firestore.DocumentSnapshot doc : snapshot.getDocuments()) {
+                                String content = doc.getString("content");
+                                String cat = doc.getString("category");
+                                Long createdAt = doc.contains("createdAt") && doc.getLong("createdAt") != null ? doc.getLong("createdAt") : System.currentTimeMillis();
+
+                                if (content != null && !content.trim().isEmpty()) {
+                                    if ("ALL".equalsIgnoreCase(selectedCategory) || selectedCategory == null || selectedCategory.isEmpty()
+                                            || (cat != null && cat.equalsIgnoreCase(selectedCategory))) {
+                                        com.example.civiclens.model.CivicPost p = new com.example.civiclens.model.CivicPost();
+                                        p.id = doc.getId();
+                                        p.authorName = doc.getString("authorName") != null ? doc.getString("authorName") : "Citizen Activist";
+                                        p.category = cat != null ? cat : "Environment";
+                                        p.district = doc.getString("district") != null ? doc.getString("district") : "Dhaka";
+                                        p.content = content;
+                                        p.mediaUrl = doc.getString("mediaUrl") != null ? doc.getString("mediaUrl") : "";
+                                        p.createdAt = createdAt != null ? createdAt : System.currentTimeMillis();
+
+                                        Long supportCount = doc.getLong("supportCount");
+                                        Long commentCount = doc.getLong("commentCount");
+                                        p.supportCount = supportCount != null ? supportCount.intValue() : 0;
+                                        p.commentCount = commentCount != null ? commentCount.intValue() : 0;
+
+                                        liveList.add(p);
+                                    }
+                                }
+                            }
+
+                            java.util.Collections.sort(liveList, (p1, p2) -> Long.compare(p2.createdAt, p1.createdAt));
+
+                            runOnUiThread(() -> {
+                                if (!isFinishing() && !isDestroyed()) {
+                                    adapter.submit(liveList);
+                                }
+                            });
+                        });
+                return;
+            } catch (Exception ignored) { }
+        }
+
+        loadLocalFeed();
+    }
+
+    private void loadLocalFeed() {
+        repository.getPostsByCategory(selectedCategory, posts -> {
+            runOnUiThread(() -> {
+                if (!isFinishing() && !isDestroyed()) {
+                    adapter.submit(posts != null ? posts : new java.util.ArrayList<>());
+                }
+            });
         });
     }
 
-    private void loadFeed() {
-        repository.getPostsByCategory(selectedCategory, posts -> {
-            if (!isFinishing() && !isDestroyed()) {
-                adapter.submit(posts != null ? posts : new java.util.ArrayList<>());
-            }
-        });
+    @Override
+    protected void onStart() {
+        super.onStart();
+        repository.startPostSync(() -> loadFeed());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadFeed();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (firestoreFeedListener != null) {
+            firestoreFeedListener.remove();
+            firestoreFeedListener = null;
+        }
+        repository.stopPostSync();
     }
 
     @Override

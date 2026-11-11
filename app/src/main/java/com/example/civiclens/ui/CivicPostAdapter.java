@@ -32,6 +32,12 @@ public class CivicPostAdapter extends RecyclerView.Adapter<CivicPostAdapter.View
         notifyDataSetChanged();
     }
 
+    public void addPostAtTop(CivicPost post) {
+        if (post == null) return;
+        items.add(0, post);
+        notifyItemInserted(0);
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

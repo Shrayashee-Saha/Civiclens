@@ -21,5 +21,10 @@ service cloud.firestore {
                   && resource.data.receiverId == request.auth.uid;
       allow write: if false;   // all changes go through callable functions
     }
+
+    match /posts/{postId} {
+      allow read: if true;
+      allow create, update, delete: if true;
+    }
   }
 }

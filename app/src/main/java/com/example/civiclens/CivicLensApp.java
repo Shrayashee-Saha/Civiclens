@@ -32,6 +32,8 @@ public class CivicLensApp extends Application {
                 ReminderWorker.UNIQUE_NAME, ExistingPeriodicWorkPolicy.KEEP, dailyCheck);
 
         SyncScheduler.schedulePeriodic(this);
-        new com.example.civiclens.data.CommunityRepository(this).seedIfEmpty(null);
+        com.example.civiclens.data.CommunityRepository repo = new com.example.civiclens.data.CommunityRepository(this);
+        repo.seedIfEmpty(null);
+        repo.startPostSync();
     }
 }
