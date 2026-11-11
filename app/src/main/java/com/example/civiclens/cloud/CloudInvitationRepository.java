@@ -78,15 +78,19 @@ public class CloudInvitationRepository {
                 } catch (Exception ignored) { }
             }
 
-            final long appLaunchTime = System.currentTimeMillis() - 2000;
+            final boolean[] initialLoadDone = new boolean[]{false};
 
             activeChildListener = new com.google.firebase.database.ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot snapshot, String previousChildName) {
+                    if (!initialLoadDone[0]) {
+                        return; // Ignore historical items delivered during initial attachment on app launch!
+                    }
+
                     if (snapshot.exists()) {
-                        Long timestamp = snapshot.child("timestamp").getValue(Long.class);
-                        if (timestamp != null && timestamp < appLaunchTime) {
-                            return; // Filter out historical invitations from earlier app sessions!
+                        String status = snapshot.child("status").getValue(String.class);
+                        if (status != null && !"PENDING".equalsIgnoreCase(status)) {
+                            return;
                         }
 
                         String groupName = snapshot.child("groupName").getValue(String.class);
@@ -123,8 +127,12 @@ public class CloudInvitationRepository {
                 @Override public void onCancelled(DatabaseError error) { }
             };
 
-            ref.child("global_feed").limitToLast(10).addChildEventListener(activeChildListener);
-            ref.child(myKey).limitToLast(10).addChildEventListener(activeChildListener);
+            ref.child(myKey).keepSynced(true);
+            ref.child(myKey).addChildEventListener(activeChildListener);
+            ref.child(myKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override public void onDataChange(DataSnapshot snapshot) { initialLoadDone[0] = true; }
+                @Override public void onCancelled(DatabaseError error) { initialLoadDone[0] = true; }
+            });
         } catch (Exception ignored) { }
     }
 
