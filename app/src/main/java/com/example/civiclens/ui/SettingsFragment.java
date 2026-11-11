@@ -39,12 +39,13 @@ public class SettingsFragment extends Fragment {
     private static final int ROW_NOTIFICATIONS = 1;
     private static final int ROW_NOTIF_INBOX = 2;
     private static final int ROW_ACCESSIBILITY_TEST = 3;
-    private static final int ROW_DARK_MODE = 4;
-    private static final int ROW_FIREFOX = 5;
-    private static final int ROW_LANGUAGE = 6;
-    private static final int ROW_SHARE = 7;
-    private static final int ROW_ABOUT = 8;
-    private static final int ROW_VERSION = 9;
+    private static final int ROW_DB_EXPORT = 4;
+    private static final int ROW_DARK_MODE = 5;
+    private static final int ROW_FIREFOX = 6;
+    private static final int ROW_LANGUAGE = 7;
+    private static final int ROW_SHARE = 8;
+    private static final int ROW_ABOUT = 9;
+    private static final int ROW_VERSION = 10;
 
     private static final String[] LANGUAGE_TAGS = {"", "en", "bn"};
 
@@ -163,6 +164,7 @@ public class SettingsFragment extends Fragment {
                 getString(notifications ? R.string.setting_notifications_on : R.string.setting_notifications_off)));
         adapter.add(new Row("📬 Notification Inbox & Tracker", "View real-time alerts, system broadcasts, & tracked reports"));
         adapter.add(new Row("🔊 Accessibility & Voice Assistant Test", "Test Text-to-Speech voice readouts & haptic vibrations for blind/deaf users"));
+        adapter.add(new Row("💾 Export Database File to Phone Storage", "Copy civiclens.db to your Phone's Downloads folder"));
         adapter.add(new Row("🌙 Dark Theme / Night Mode", darkMode ? "Night Theme Enabled" : "Standard Light Theme"));
         adapter.add(new Row(getString(R.string.setting_firefox), firefoxSubtitle));
         adapter.add(new Row(getString(R.string.setting_language),
@@ -199,6 +201,9 @@ public class SettingsFragment extends Fragment {
             case ROW_ACCESSIBILITY_TEST:
                 com.example.civiclens.accessibility.AccessibilityHelper.vibrateSuccess(requireContext());
                 com.example.civiclens.accessibility.AccessibilityHelper.speak(requireContext(), "CivicLens Universal Accessibility Engine Active. Tactile vibration and Text to Speech voice guidance active for deaf and blind users.");
+                break;
+            case ROW_DB_EXPORT:
+                exportDatabaseToPhoneDownloads();
                 break;
             case ROW_DARK_MODE:
                 boolean newDark = !AppPrefs.isDarkMode(requireContext());
@@ -248,6 +253,35 @@ public class SettingsFragment extends Fragment {
                     .show();
         } else {
             startActivity(new Intent(context, SignInActivity.class));
+        }
+    }
+
+    private void exportDatabaseToPhoneDownloads() {
+        Context context = requireContext();
+        try {
+            java.io.File dbFile = context.getDatabasePath("civiclens.db");
+            if (!dbFile.exists()) {
+                Toast.makeText(context, "Database file not created yet.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            java.io.File downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS);
+            if (!downloadsDir.exists()) downloadsDir.mkdirs();
+            java.io.File destFile = new java.io.File(downloadsDir, "civiclens_backup.db");
+
+            java.io.InputStream in = new java.io.FileInputStream(dbFile);
+            java.io.OutputStream out = new java.io.FileOutputStream(destFile);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = in.read(buffer)) > 0) {
+                out.write(buffer, 0, length);
+            }
+            in.close();
+            out.close();
+
+            com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(context, "💾 Database Backup Saved to Phone Downloads: civiclens_backup.db!", false);
+            Toast.makeText(context, "Saved to Phone: " + destFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            Toast.makeText(context, "Failed to copy database: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 

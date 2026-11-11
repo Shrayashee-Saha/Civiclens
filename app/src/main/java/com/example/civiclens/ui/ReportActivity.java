@@ -178,6 +178,11 @@ public class ReportActivity extends AppCompatActivity {
             exportCsvBtn.setOnClickListener(v -> exportReportsCsv());
         }
 
+        View exportPdfBtn = findViewById(R.id.btnExportReportPdf);
+        if (exportPdfBtn != null) {
+            exportPdfBtn.setOnClickListener(v -> exportReportDraftPdf());
+        }
+
         RecyclerView list = findViewById(R.id.reportsList);
         list.setLayoutManager(new LinearLayoutManager(this));
         list.setNestedScrollingEnabled(false);
@@ -494,6 +499,34 @@ public class ReportActivity extends AppCompatActivity {
             IntentHelper.shareText(this, csv.toString(), "Export CivicLens Reports (CSV)");
             com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "📥 Reports Exported as CSV!", false);
         });
+    }
+
+    private void exportReportDraftPdf() {
+        String description = text(descriptionInput);
+        String location = text(locationInput);
+        String district = selectedDistrict().isEmpty() ? "Dhaka" : selectedDistrict();
+        String category = categorySpinner != null && categorySpinner.getSelectedItem() != null ? categorySpinner.getSelectedItem().toString() : "Infrastructure";
+
+        if (description.isEmpty()) {
+            Toast.makeText(this, "Please describe the civic problem first.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String today = new SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale.getDefault()).format(new Date());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("CIVIC PROBLEM REPORT & PUBLIC COMPLAINT DRAFT\n");
+        sb.append("CivicLens Transparency & Digital Governance Platform — Bangladesh\n\n");
+        sb.append("Date: ").append(today).append("\n");
+        sb.append("Category: ").append(category).append("\n");
+        sb.append("District: ").append(district).append("\n");
+        sb.append("Location Detail: ").append(location.isEmpty() ? "Not specified" : location).append("\n\n");
+        sb.append("Problem Particulars & Citizen Ground Evidence:\n");
+        sb.append(description).append("\n\n");
+        sb.append("Status: DRAFT / PREPARED FOR OFFICIAL ROUTING\n");
+        sb.append("This document constitutes a formal public complaint draft for administrative submission.\n");
+
+        com.example.civiclens.accessibility.AccessibilityHelper.exportToPdf(this, "Civic_Problem_Report_Draft", sb.toString());
     }
 
     private static String formatTime(long millis) {
