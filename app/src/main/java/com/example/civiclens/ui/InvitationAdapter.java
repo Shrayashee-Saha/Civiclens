@@ -1,5 +1,7 @@
 package com.example.civiclens.ui;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,13 +24,19 @@ public class InvitationAdapter extends RecyclerView.Adapter<InvitationAdapter.Vi
         final String invId;
         final String title;
         final String sender;
+        final String groupId;
         String status;
 
-        public InvitationItem(String invId, String title, String sender, String status) {
+        public InvitationItem(String invId, String title, String sender, String status, String groupId) {
             this.invId = invId;
             this.title = title;
             this.sender = sender;
             this.status = status;
+            this.groupId = groupId != null ? groupId : "";
+        }
+
+        public InvitationItem(String invId, String title, String sender, String status) {
+            this(invId, title, sender, status, "");
         }
     }
 
@@ -65,31 +73,45 @@ public class InvitationAdapter extends RecyclerView.Adapter<InvitationAdapter.Vi
         }
 
         holder.btnAccept.setOnClickListener(v -> {
-            item.status = "ACCEPTED";
-            holder.buttonsLayout.setVisibility(View.GONE);
-            holder.sender.setText("From: " + item.sender + " · Status: ACCEPTED ✓");
-
+            Context ctx = v.getContext();
             String groupName = parseGroupName(item.title, item.sender);
+            String targetGroupId = item.groupId != null && !item.groupId.isEmpty() ? item.groupId : "group_" + groupName.toLowerCase().replaceAll("[^a-z0-9]", "_");
 
-            new com.example.civiclens.data.CommunityRepository(v.getContext()).joinCommunityByName(groupName, null);
+            item.status = "ACCEPTED";
+            notifyDataSetChanged();
 
-            com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(v.getContext(), "✓ Joined " + groupName + " successfully!", false);
+            com.example.civiclens.data.CommunityRepository repo = new com.example.civiclens.data.CommunityRepository(ctx);
+            repo.joinCommunityByName(groupName, null);
+            repo.registerCloudMembership(targetGroupId, groupName, null);
 
-            CloudInvitationRepository.respondToFirestoreInvitation(v.getContext(), item.invId, "ACCEPTED", null);
+            com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(ctx, "✓ Joined " + groupName + " successfully!", false);
 
-            android.content.Intent intent = new android.content.Intent(v.getContext(), CivicGroupActivity.class);
-            intent.putExtra("group_name", groupName);
-            intent.putExtra("group_sender", item.sender);
-            v.getContext().startActivity(intent);
+            if (com.example.civiclens.firebase.FirebaseGate.isReady(ctx)) {
+                com.example.civiclens.cloud.GroupCloudRepository.respondToInvitation(ctx, item.invId, true, (ok, msg, data) -> {
+                    if (!ok) {
+                        CloudInvitationRepository.respondToFirestoreInvitation(ctx, item.invId, "ACCEPTED", null);
+                    }
+                });
+            }
+
+            Intent i = new Intent(ctx, CivicGroupActivity.class);
+            i.putExtra("group_id", targetGroupId);
+            i.putExtra("group_name", groupName);
+            i.putExtra("group_sender", item.sender);
+            ctx.startActivity(i);
         });
 
         holder.btnDecline.setOnClickListener(v -> {
+            Context ctx = v.getContext();
             item.status = "DECLINED";
-            holder.buttonsLayout.setVisibility(View.GONE);
-            holder.sender.setText("From: " + item.sender + " · Status: DECLINED ✕");
-            CloudInvitationRepository.respondToFirestoreInvitation(v.getContext(), item.invId, "DECLINED", () -> {
-                Toast.makeText(v.getContext(), "Invitation declined.", Toast.LENGTH_SHORT).show();
-            });
+            notifyDataSetChanged();
+            if (com.example.civiclens.firebase.FirebaseGate.isReady(ctx)) {
+                com.example.civiclens.cloud.GroupCloudRepository.respondToInvitation(ctx, item.invId, false, (ok, msg, data) -> {
+                    if (!ok) {
+                        CloudInvitationRepository.respondToFirestoreInvitation(ctx, item.invId, "DECLINED", null);
+                    }
+                });
+            }
         });
     }
 
@@ -97,13 +119,20 @@ public class InvitationAdapter extends RecyclerView.Adapter<InvitationAdapter.Vi
         if (title == null) return "Save the Sundarbans & Coastal Forests";
         String clean = title;
         clean = clean.replace("📩 Group Invitation:", "");
+        clean = clean.replace("📩 New Group Invitation", "");
         clean = clean.replace("📩 New Cross-Device Invitation", "");
         clean = clean.replace("📩 Group Invitation Sent", "");
         clean = clean.trim();
-        if (clean.isEmpty() && sender != null && sender.contains("for: ")) {
+
+        if (clean.startsWith(":")) {
+            clean = clean.substring(1).trim();
+        }
+
+        if ((clean.isEmpty() || "📩 New Group Invitation".contains(clean)) && sender != null && sender.contains("for: ")) {
             clean = sender.substring(sender.indexOf("for: ") + 5).trim();
         }
-        if (clean.isEmpty()) {
+
+        if (clean.isEmpty() || "📩 New Group Invitation".contains(clean)) {
             clean = "Save the Sundarbans & Coastal Forests";
         }
         return clean;

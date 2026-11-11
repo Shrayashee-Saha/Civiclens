@@ -1,16 +1,6 @@
 {
   "rules": {
-    "invitations": {
-      ".read": true,
-      ".write": true
-    },
-    "fcm_tokens": {
-      ".read": true,
-      ".write": true
-    },
-    "observations": {
-      ".read": true,
-      ".write": true
-    }
+    ".read": false,
+    ".write": false
   }
 }

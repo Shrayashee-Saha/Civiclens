@@ -327,6 +327,44 @@ public class CommunityRepository {
         });
     }
 
+    public void registerCloudMembership(String groupId, String groupName, Runnable onDone) {
+        String uid = getUserId();
+        CivicDatabase.IO.execute(() -> {
+            CivicCommunity c = dao.getCommunityById(groupId);
+            if (c == null) {
+                c = new CivicCommunity();
+                c.id = groupId;
+                c.name = groupName;
+                c.description = "Citizen environmental and public advocacy group.";
+                c.category = "Environment";
+                c.district = "Dhaka";
+                c.communityType = CivicCommunity.TYPE_PUBLIC;
+                c.memberCount = 2;
+                c.isMember = true;
+            } else {
+                c.isMember = true;
+                c.memberCount++;
+            }
+            dao.insertCommunity(c);
+
+            if (root != null && uid != null) {
+                Map<String, Object> uData = new HashMap<>();
+                uData.put("groupId", groupId);
+                uData.put("groupName", groupName);
+                uData.put("joinedAt", System.currentTimeMillis());
+                root.child("users").child(uid).child("joined_groups").child(groupId).setValue(uData);
+
+                Map<String, Object> mData = new HashMap<>();
+                mData.put("uid", uid);
+                mData.put("email", FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getEmail() : "citizen");
+                mData.put("joinedAt", System.currentTimeMillis());
+                root.child("groups").child(groupId).child("members").child(uid).setValue(mData);
+            }
+
+            if (onDone != null) main.post(onDone);
+        });
+    }
+
     public void startCommunitySync(String uid) {
         if (root == null || uid == null) return;
         stopCommunitySync();
@@ -346,6 +384,33 @@ public class CommunityRepository {
             @Override public void onCancelled(DatabaseError error) { }
         };
         root.child("communities").addValueEventListener(communityListener);
+
+        root.child("users").child(uid).child("joined_groups").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                CivicDatabase.IO.execute(() -> {
+                    for (DataSnapshot child : snapshot.getChildren()) {
+                        String gId = child.child("groupId").getValue(String.class);
+                        String gName = child.child("groupName").getValue(String.class);
+                        if (gId != null && gName != null) {
+                            CivicCommunity c = dao.getCommunityById(gId);
+                            if (c == null) {
+                                c = new CivicCommunity();
+                                c.id = gId;
+                                c.name = gName;
+                                c.description = "Joined Civic Assembly Group";
+                                c.category = "Environment";
+                                c.district = "Dhaka";
+                                c.memberCount = 2;
+                            }
+                            c.isMember = true;
+                            dao.insertCommunity(c);
+                        }
+                    }
+                });
+            }
+            @Override public void onCancelled(DatabaseError error) { }
+        });
     }
 
     public void startPostSync() {

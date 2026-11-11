@@ -92,19 +92,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         com.example.civiclens.auth.AuthRepository auth = new com.example.civiclens.auth.AuthRepository();
-        com.example.civiclens.cloud.CloudInvitationRepository.listenForCrossDeviceInvitations(
-                this, auth.currentEmail()
-        );
-
-        com.google.firebase.messaging.FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(task -> {
-                    if (!task.isSuccessful()) {
-                        android.util.Log.e("CivicLensFCM", "Token failed", task.getException());
-                        return;
-                    }
-                    String token = task.getResult();
-                    android.util.Log.d("CivicLensFCM", "FCM TOKEN: " + token);
-                });
+        if (FirebaseGate.isReady(this)) {
+            com.example.civiclens.cloud.CloudInvitationRepository.listenForCrossDeviceInvitations(this, auth.currentEmail());
+            if (auth.isSignedIn()) {
+                com.example.civiclens.cloud.GroupCloudRepository.registerFcmToken(this);
+            }
+        }
 
         try {
             com.google.firebase.messaging.FirebaseMessaging.getInstance().subscribeToTopic("all_citizens");

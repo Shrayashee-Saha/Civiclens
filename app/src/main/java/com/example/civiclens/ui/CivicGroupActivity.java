@@ -74,6 +74,15 @@ public class CivicGroupActivity extends AppCompatActivity {
         loadInitialMessages();
         loadSignedInUsers();
 
+        String rawGName = getIntent().getStringExtra("group_name");
+        String rawGId = getIntent().getStringExtra("group_id");
+        if (rawGName != null && !rawGName.isEmpty()) {
+            if (rawGId == null || rawGId.isEmpty()) {
+                rawGId = "group_" + rawGName.toLowerCase().replaceAll("[^a-z0-9]", "_");
+            }
+            new com.example.civiclens.data.CommunityRepository(this).registerCloudMembership(rawGId, rawGName, null);
+        }
+
         if (android.os.Build.VERSION.SDK_INT >= 33
                 && androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
                 != android.content.pm.PackageManager.PERMISSION_GRANTED) {
@@ -184,9 +193,21 @@ public class CivicGroupActivity extends AppCompatActivity {
         input.setHint("Enter member's email address...");
         input.setInputType(android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
 
+        String activeGroup = getIntent().getStringExtra("group_name");
+        if (activeGroup == null || activeGroup.trim().isEmpty()) {
+            activeGroup = "Save the Sundarbans & Coastal Forests";
+        }
+        final String finalGroup = activeGroup.trim();
+
+        String rawGroupId = getIntent().getStringExtra("group_id");
+        if (rawGroupId == null || rawGroupId.isEmpty()) {
+            rawGroupId = "group_" + finalGroup.toLowerCase().replaceAll("[^a-z0-9]", "_");
+        }
+        final String finalGroupId = rawGroupId;
+
         new MaterialAlertDialogBuilder(this)
-                .setTitle("📩 Invite Member to Civic Group")
-                .setMessage("Enter the email address of the citizen or official you wish to invite.")
+                .setTitle("📩 Invite Member to " + finalGroup)
+                .setMessage("Enter the email address of the citizen or official you wish to invite to " + finalGroup + ".")
                 .setView(input)
                 .setPositiveButton("Send Invitation", (dialog, which) -> {
                     String email = input.getText() == null ? "" : input.getText().toString().trim();
@@ -195,31 +216,25 @@ public class CivicGroupActivity extends AppCompatActivity {
                         return;
                     }
 
-                    String groupId = getIntent().getStringExtra("group_id");
-                    if (groupId == null || groupId.isEmpty()) {
-                        groupId = "group_default_assembly";
-                    }
-                    final String finalGroupId = groupId;
+                    com.example.civiclens.auth.AuthRepository auth = new com.example.civiclens.auth.AuthRepository();
+                    String sender = auth.currentEmail() != null ? auth.currentEmail() : "Citizen Activist";
 
                     com.example.civiclens.cloud.GroupCloudRepository.findUserByEmail(this, email, (success, message, data) -> {
                         if (success && data != null && data.containsKey("uid")) {
                             String receiverUid = (String) data.get("uid");
                             com.example.civiclens.cloud.GroupCloudRepository.inviteToGroup(this, finalGroupId, receiverUid, (invSuccess, invMessage, invData) -> {
                                 if (invSuccess) {
-                                    com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "📩 Invitation Request Sent!", false);
+                                    com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "📩 Invitation Sent to " + email + "!", false);
                                 } else {
-                                    Toast.makeText(this, invMessage != null ? invMessage : "Failed to send invite.", Toast.LENGTH_LONG).show();
+                                    com.example.civiclens.cloud.CloudInvitationRepository.sendInvitation(this, sender, email, finalGroup);
+                                    com.example.civiclens.notify.NotificationHelper.showDirectAlert(this, "📩 Group Invitation Sent", "Membership request invitation sent to " + email + " for " + finalGroup + ".");
+                                    com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "📩 Membership Request Sent to " + email + "!", false);
                                 }
                             });
                         } else {
-                            com.example.civiclens.auth.AuthRepository auth = new com.example.civiclens.auth.AuthRepository();
-                            String sender = auth.currentEmail() != null ? auth.currentEmail() : "Citizen Activist";
-                            String currentGroup = getIntent().getStringExtra("group_name");
-                            if (currentGroup == null || currentGroup.isEmpty()) currentGroup = "Environmental Protection Assembly";
-
-                            com.example.civiclens.cloud.CloudInvitationRepository.sendInvitation(this, sender, email, currentGroup);
-                            com.example.civiclens.notify.NotificationHelper.showDirectAlert(this, "📩 Group Invitation Sent", "Membership request invitation sent to " + email + ". Pending approval.");
-                            com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "📩 Membership Request Sent to " + email + " — Pending Approval!", false);
+                            com.example.civiclens.cloud.CloudInvitationRepository.sendInvitation(this, sender, email, finalGroup);
+                            com.example.civiclens.notify.NotificationHelper.showDirectAlert(this, "📩 Group Invitation Sent", "Membership request invitation sent to " + email + " for " + finalGroup + ".");
+                            com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "📩 Membership Request Sent to " + email + "!", false);
                         }
                     });
                 })

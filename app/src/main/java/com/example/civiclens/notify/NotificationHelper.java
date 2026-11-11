@@ -142,15 +142,33 @@ public final class NotificationHelper {
         }
     }
 
+    public static void saveNotificationToHistory(Context context, String title, String body) {
+        if (context == null || title == null) return;
+        try {
+            android.content.SharedPreferences prefs = context.getSharedPreferences("civiclens_notifications_history", Context.MODE_PRIVATE);
+            String current = prefs.getString("history_json", "[]");
+            org.json.JSONArray array = new org.json.JSONArray(current);
+
+            org.json.JSONObject obj = new org.json.JSONObject();
+            obj.put("title", title);
+            obj.put("body", body != null ? body : "");
+            obj.put("timestamp", System.currentTimeMillis());
+
+            array.put(obj);
+            prefs.edit().putString("history_json", array.toString()).apply();
+        } catch (Exception ignored) { }
+    }
+
     @SuppressLint("MissingPermission")
     public static void showDirectAlert(Context context, String title, String body) {
-        if (context == null) return;
-        if (!remindersEnabled(context)) return;
-        if (Build.VERSION.SDK_INT >= 33
-                && ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
-                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
+        if (context == null || title == null) return;
+
+        saveNotificationToHistory(context, title, body);
+
+        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+            com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(
+                    context, title + "\n" + (body != null ? body : ""), false);
+        });
 
         createChannels(context);
         int notificationId = (title + (body != null ? body : "") + System.currentTimeMillis()).hashCode();

@@ -1,5 +1,6 @@
 package com.example.civiclens.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -22,6 +23,7 @@ public class NotificationsActivity extends AppCompatActivity {
 
     private InvitationAdapter adapter;
     private TextView emptyText;
+    private com.google.firebase.firestore.ListenerRegistration invRegistration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,7 @@ public class NotificationsActivity extends AppCompatActivity {
         View clearBtn = findViewById(R.id.btnClearInbox);
         if (clearBtn != null) {
             clearBtn.setOnClickListener(v -> {
+                getSharedPreferences("civiclens_notifications_history", MODE_PRIVATE).edit().clear().apply();
                 adapter.submit(new ArrayList<>());
                 if (emptyText != null) emptyText.setVisibility(View.VISIBLE);
                 com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "🧹 Notification Inbox Cleared", false);
@@ -82,29 +85,54 @@ public class NotificationsActivity extends AppCompatActivity {
                         customSender != null ? customSender : "Citizen Activist",
                         actionStatus != null ? actionStatus : "PENDING"
                 ));
-            } else if (actionStatus != null) {
-                items.add(new InvitationAdapter.InvitationItem(
-                        "inv_dyn_1",
-                        "📩 Group Invitation: Environmental Protection Assembly",
-                        "activist@civiclens.org",
-                        actionStatus
-                ));
-                if ("ACCEPTED".equalsIgnoreCase(actionStatus)) {
-                    com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "✓ Joined group successfully!", false);
-                    startActivity(new android.content.Intent(this, CivicGroupActivity.class));
-                }
             }
         }
 
-        items.add(new InvitationAdapter.InvitationItem("inv_1", "📩 Group Invitation: Save the Sundarbans Alliance", "advocate.rahman@mopa.gov.bd", "PENDING"));
-        items.add(new InvitationAdapter.InvitationItem("inv_2", "📩 Group Invitation: Protect Khulna Wetlands", "gazipur.activist@civiclens.org", "PENDING"));
-        items.add(new InvitationAdapter.InvitationItem("inv_3", "📩 Group Invitation: Safe Roads & Infrastructure Assembly", "sylhet.engineer@rhd.gov.bd", "PENDING"));
-
-        items.add(new InvitationAdapter.InvitationItem("sys_1", "🚨 System Alert: Low Battery Receiver Registered", "System Broadcast", "ACCEPTED"));
-        items.add(new InvitationAdapter.InvitationItem("sys_2", "📢 Project Alert: Dhaka Elevated Expressway CAG Audit Flag", "CAG Audit Office", "ACCEPTED"));
+        try {
+            android.content.SharedPreferences prefs = getSharedPreferences("civiclens_notifications_history", MODE_PRIVATE);
+            String current = prefs.getString("history_json", "[]");
+            org.json.JSONArray array = new org.json.JSONArray(current);
+            for (int i = array.length() - 1; i >= 0; i--) {
+                org.json.JSONObject obj = array.getJSONObject(i);
+                String title = obj.optString("title", "📩 Civic Notification");
+                String body = obj.optString("body", "");
+                items.add(new InvitationAdapter.InvitationItem("inv_saved_" + i, title, body, "PENDING"));
+            }
+        } catch (Exception ignored) { }
 
         adapter.submit(items);
         emptyText.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (com.example.civiclens.firebase.FirebaseGate.isReady(this)) {
+            invRegistration = com.example.civiclens.cloud.GroupCloudRepository.listenForPendingInvitations(this, pendingList -> {
+                if (pendingList != null && !pendingList.isEmpty()) {
+                    List<InvitationAdapter.InvitationItem> cloudItems = new ArrayList<>();
+                    for (com.example.civiclens.cloud.GroupCloudRepository.PendingInvitation inv : pendingList) {
+                        cloudItems.add(new InvitationAdapter.InvitationItem(
+                                inv.id,
+                                "📩 Group Invitation: " + inv.groupName,
+                                inv.senderName,
+                                "PENDING"
+                        ));
+                    }
+                    adapter.submit(cloudItems);
+                    if (emptyText != null) emptyText.setVisibility(View.GONE);
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (invRegistration != null) {
+            invRegistration.remove();
+            invRegistration = null;
+        }
     }
 
     @Override

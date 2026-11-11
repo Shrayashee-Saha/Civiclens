@@ -67,6 +67,7 @@ public class SignInActivity extends AppCompatActivity {
             if (createAccount) {
                 profiles.save(auth.currentUid(), name, email);
             }
+            com.example.civiclens.cloud.GroupCloudRepository.registerFcmToken(this);
             finish();
         };
 

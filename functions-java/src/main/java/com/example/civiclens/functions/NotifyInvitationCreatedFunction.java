@@ -37,25 +37,53 @@ public class NotifyInvitationCreatedFunction implements BackgroundFunction<Notif
 
     @Override
     public void accept(FirestoreEvent event, Context context) throws Exception {
-        if (event == null || event.value == null || !event.value.has("fields")) return;
+        System.out.println("NOTIFY_INVITE_FIRED: " + (event != null ? GSON.toJson(event) : "null"));
 
-        JsonObject fields = event.value.getAsJsonObject("fields");
+        if (event == null || event.value == null) {
+            System.out.println("NOTIFY_INVITE_SKIPPED: event or value is null");
+            return;
+        }
+
+        JsonObject fields = null;
+        if (event.value.has("fields")) {
+            fields = event.value.getAsJsonObject("fields");
+        } else if (event.value.has("value") && event.value.getAsJsonObject("value").has("fields")) {
+            fields = event.value.getAsJsonObject("value").getAsJsonObject("fields");
+        }
+
+        if (fields == null) {
+            System.out.println("NOTIFY_INVITE_SKIPPED: fields structure not found");
+            return;
+        }
+
         String status = getStringField(fields, "status");
-        if (!"PENDING".equalsIgnoreCase(status)) return;
+        if (!"PENDING".equalsIgnoreCase(status)) {
+            System.out.println("NOTIFY_INVITE_SKIPPED: status is not PENDING (" + status + ")");
+            return;
+        }
 
         String receiverId = getStringField(fields, "receiverId");
         String groupName = getStringField(fields, "groupName");
         String senderName = getStringField(fields, "senderName");
         String groupId = getStringField(fields, "groupId");
 
+        System.out.println("NOTIFY_INVITE_PROCESSING: receiverId=" + receiverId + ", groupName=" + groupName + ", senderName=" + senderName);
+
         if (receiverId.isEmpty()) return;
 
         Firestore db = FirestoreClient.getFirestore();
         DocumentSnapshot userDoc = db.collection("users").document(receiverId).get().get();
 
-        if (!userDoc.exists() || !userDoc.contains("fcmToken")) return;
+        if (!userDoc.exists() || !userDoc.contains("fcmToken")) {
+            System.out.println("NOTIFY_INVITE_SKIPPED: No fcmToken found in users/" + receiverId);
+            return;
+        }
+
         String fcmToken = userDoc.getString("fcmToken");
-        if (fcmToken == null || fcmToken.trim().isEmpty()) return;
+        if (fcmToken == null || fcmToken.trim().isEmpty()) {
+            System.out.println("NOTIFY_INVITE_SKIPPED: fcmToken is empty for users/" + receiverId);
+            return;
+        }
 
         Message message = Message.builder()
                 .setToken(fcmToken)
@@ -69,8 +97,10 @@ public class NotifyInvitationCreatedFunction implements BackgroundFunction<Notif
                 .build();
 
         try {
-            FirebaseMessaging.getInstance().send(message);
+            String messageId = FirebaseMessaging.getInstance().send(message);
+            System.out.println("NOTIFY_INVITE_SUCCESS: Push dispatched! MessageId=" + messageId);
         } catch (Exception e) {
+            System.err.println("NOTIFY_INVITE_FCM_ERROR: " + e.getMessage());
             if (e.getMessage() != null && (e.getMessage().contains("UNREGISTERED") || e.getMessage().contains("invalid-registration-token"))) {
                 Map<String, Object> removeToken = new HashMap<>();
                 removeToken.put("fcmToken", null);

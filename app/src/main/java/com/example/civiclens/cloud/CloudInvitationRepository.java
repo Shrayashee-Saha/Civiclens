@@ -47,14 +47,15 @@ public class CloudInvitationRepository {
                 payload.put("status", "PENDING");
                 payload.put("timestamp", System.currentTimeMillis());
 
-                ref.child(targetKey).child(invId).setValue(payload)
+                ref.child(targetKey).child(invId).setValue(payload);
+                ref.child("live_stream").child(invId).setValue(payload)
                         .addOnSuccessListener(aVoid -> {
                             new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
-                                    android.widget.Toast.makeText(context, "☁️ Firebase Cloud Sync: Invitation delivered to cloud!", android.widget.Toast.LENGTH_SHORT).show());
+                                    android.widget.Toast.makeText(context, "☁️ Cloud Sync: Invitation dispatched to " + targetEmail + "!", android.widget.Toast.LENGTH_SHORT).show());
                         })
                         .addOnFailureListener(e -> {
                             new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
-                                    android.widget.Toast.makeText(context, "⚠ Firebase Cloud Error: " + e.getLocalizedMessage() + ". Please publish rules in Firebase Console.", android.widget.Toast.LENGTH_LONG).show());
+                                    android.widget.Toast.makeText(context, "⚠ Firebase Cloud Error: " + e.getLocalizedMessage(), android.widget.Toast.LENGTH_LONG).show());
                         });
             } catch (Exception ignored) { }
         }
@@ -72,29 +73,36 @@ public class CloudInvitationRepository {
 
             if (activeChildListener != null) {
                 try {
-                    ref.child("global_feed").removeEventListener(activeChildListener);
+                    ref.child("live_stream").removeEventListener(activeChildListener);
                     ref.child(myKey).removeEventListener(activeChildListener);
                 } catch (Exception ignored) { }
             }
-
-            final long listenerStartTime = System.currentTimeMillis() - 3000;
 
             activeChildListener = new com.google.firebase.database.ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot snapshot, String previousChildName) {
                     if (snapshot.exists()) {
-                        Long timestamp = snapshot.child("timestamp").getValue(Long.class);
-                        if (timestamp == null || timestamp < listenerStartTime) {
-                            return; // Ignore historical or untimestamped invitations
-                        }
-
                         String groupName = snapshot.child("groupName").getValue(String.class);
                         String senderEmail = snapshot.child("senderEmail").getValue(String.class);
+                        String targetEmail = snapshot.child("targetEmail").getValue(String.class);
 
-                        if (groupName != null) {
+                        // 1. Skip if sender is yourself
+                        if (myEmail != null && senderEmail != null && senderEmail.trim().equalsIgnoreCase(myEmail.trim())) {
+                            return;
+                        }
+
+                        // 2. Verify target recipient match
+                        boolean isTargetForMe = false;
+                        if (myEmail == null || myEmail.trim().isEmpty() || "general_citizen".equals(myKey)) {
+                            isTargetForMe = true; // Guest mode receives live alerts
+                        } else if (targetEmail != null && (targetEmail.trim().equalsIgnoreCase(myEmail.trim()) || cleanEmailKey(targetEmail).equals(myKey))) {
+                            isTargetForMe = true; // Direct email match
+                        }
+
+                        if (isTargetForMe && groupName != null) {
                             NotificationHelper.showDirectAlert(
                                     context,
-                                    "📩 New Cross-Device Invitation",
+                                    "📩 New Group Invitation",
                                     "You received a group invitation from " + (senderEmail != null ? senderEmail : "Citizen") + " for: " + groupName
                             );
                         }
@@ -107,7 +115,10 @@ public class CloudInvitationRepository {
                 @Override public void onCancelled(DatabaseError error) { }
             };
 
+            ref.child(myKey).keepSynced(true);
             ref.child(myKey).limitToLast(5).addChildEventListener(activeChildListener);
+            ref.child("live_stream").keepSynced(true);
+            ref.child("live_stream").limitToLast(5).addChildEventListener(activeChildListener);
         } catch (Exception ignored) { }
     }
 
