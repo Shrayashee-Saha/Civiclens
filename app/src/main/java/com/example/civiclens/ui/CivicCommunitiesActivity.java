@@ -31,13 +31,12 @@ public class CivicCommunitiesActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        toolbar.setNavigationOnClickListener(v -> {
-            if (isTaskRoot()) {
-                Intent parent = new Intent(this, MainActivity.class);
-                parent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(parent);
+        toolbar.setNavigationOnClickListener(v -> IntentHelper.handleBackNavigation(this));
+        getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                IntentHelper.handleBackNavigation(CivicCommunitiesActivity.this);
             }
-            finish();
         });
 
         repository = new CommunityRepository(this);

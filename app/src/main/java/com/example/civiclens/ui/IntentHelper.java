@@ -121,6 +121,17 @@ public final class IntentHelper {
         }
     }
 
+    /** Universal Back Navigation Handler across all activities. */
+    public static void handleBackNavigation(androidx.appcompat.app.AppCompatActivity activity) {
+        if (activity == null) return;
+        if (activity.isTaskRoot()) {
+            Intent parent = new Intent(activity, MainActivity.class);
+            parent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            activity.startActivity(parent);
+        }
+        activity.finish();
+    }
+
     private static void start(Context context, Intent intent) {
         try {
             context.startActivity(intent);
