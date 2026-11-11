@@ -33,7 +33,13 @@ public final class NewsFetcher {
             "https://en.prothomalo.com/feed/",
             "https://www.dhakatribune.com/rss.xml",
             "https://bdnews24.com/?widgetName=rssfeed",
-            "https://unb.com.bd/rss/feed"
+            "https://unb.com.bd/rss/feed",
+            "https://www.daily-bangladesh.com/rss/xml",
+            "https://www.daily-sun.com/rss/feed",
+            "https://www.newagebd.net/rss.xml",
+            "https://www.bangladeshpost.net/rss.xml",
+            "https://thefinancialexpress.com.bd/rss.xml",
+            "https://www.ittefaq.com.bd/rss.xml"
     };
 
     private static final String[] EXCLUDED_KEYWORDS = {
@@ -103,7 +109,7 @@ public final class NewsFetcher {
     private static List<AccountabilityCase> fetchGNewsApi(String apiKey) {
         List<AccountabilityCase> list = new ArrayList<>();
         try {
-            String queryUrl = "https://gnews.io/api/v4/search?q=Bangladesh+infrastructure+OR+road+OR+bridge&lang=en&apikey=" + apiKey;
+            String queryUrl = "https://gnews.io/api/v4/search?q=Bangladesh+(infrastructure+OR+road+OR+bridge+OR+expressway+OR+metro+OR+drainage+OR+wetland+OR+audit+OR+cag+OR+wasa+OR+desco+OR+environment)&lang=en&max=20&apikey=" + apiKey;
             HttpURLConnection conn = (HttpURLConnection) new URL(queryUrl).openConnection();
             conn.setRequestMethod("GET");
             conn.setConnectTimeout(8000);
