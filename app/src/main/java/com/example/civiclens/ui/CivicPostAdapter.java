@@ -26,7 +26,9 @@ public class CivicPostAdapter extends RecyclerView.Adapter<CivicPostAdapter.View
 
     public void submit(List<CivicPost> posts) {
         items.clear();
-        items.addAll(posts);
+        if (posts != null) {
+            items.addAll(posts);
+        }
         notifyDataSetChanged();
     }
 
@@ -48,12 +50,33 @@ public class CivicPostAdapter extends RecyclerView.Adapter<CivicPostAdapter.View
 
         if (post.mediaUrl != null && !post.mediaUrl.trim().isEmpty()) {
             try {
-                holder.postImage.setImageURI(Uri.parse(post.mediaUrl));
-                holder.postImage.setVisibility(View.VISIBLE);
-            } catch (Exception e) {
+                Uri mediaUri = Uri.parse(post.mediaUrl);
+                Context ctx = holder.itemView.getContext();
+                try {
+                    ctx.getContentResolver().takePersistableUriPermission(mediaUri, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                } catch (Throwable ignored) { }
+
+                java.io.InputStream stream = ctx.getContentResolver().openInputStream(mediaUri);
+                if (stream != null) {
+                    android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeStream(stream);
+                    stream.close();
+                    if (bitmap != null) {
+                        holder.postImage.setImageBitmap(bitmap);
+                        holder.postImage.setVisibility(View.VISIBLE);
+                    } else {
+                        holder.postImage.setImageDrawable(null);
+                        holder.postImage.setVisibility(View.GONE);
+                    }
+                } else {
+                    holder.postImage.setImageDrawable(null);
+                    holder.postImage.setVisibility(View.GONE);
+                }
+            } catch (Throwable e) {
+                holder.postImage.setImageDrawable(null);
                 holder.postImage.setVisibility(View.GONE);
             }
         } else {
+            holder.postImage.setImageDrawable(null);
             holder.postImage.setVisibility(View.GONE);
         }
 

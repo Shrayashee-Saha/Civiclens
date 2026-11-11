@@ -39,7 +39,13 @@ public class CivicFirebaseMessagingService extends FirebaseMessagingService {
             }
         }
 
-        NotificationHelper.showDirectAlert(getApplicationContext(), title, body);
+        boolean shown = false;
+        if (projectId != null && !projectId.isEmpty()) {
+            shown = NotificationHelper.showProjectAlert(getApplicationContext(), title, body, projectId);
+        }
+        if (!shown) {
+            NotificationHelper.showDirectAlert(getApplicationContext(), title, body);
+        }
     }
 
     @Override

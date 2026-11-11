@@ -104,6 +104,7 @@ public final class NotificationHelper {
 
     @SuppressLint("MissingPermission")
     public static boolean showProjectAlert(Context context, String title, String body, String projectId) {
+        if (context == null) return false;
         if (!remindersEnabled(context)) {
             return false;
         }
@@ -113,7 +114,9 @@ public final class NotificationHelper {
             return false;
         }
 
-        int notificationId = (title + body).hashCode();
+        createChannels(context);
+
+        int notificationId = (title + (body != null ? body : "") + (projectId != null ? projectId : "")).hashCode();
         Intent intent = projectId != null
                 ? ProjectDetailActivity.intent(context, projectId)
                 : new Intent(context, com.example.civiclens.ui.MainActivity.class);
@@ -127,19 +130,30 @@ public final class NotificationHelper {
                 .setContentText(body)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setDefaults(Notification.DEFAULT_ALL)
                 .build();
 
-        NotificationManagerCompat.from(context).notify(notificationId, notification);
-        return true;
+        try {
+            NotificationManagerCompat.from(context).notify(notificationId, notification);
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     @SuppressLint("MissingPermission")
     public static void showDirectAlert(Context context, String title, String body) {
         if (context == null) return;
+        if (!remindersEnabled(context)) return;
+        if (Build.VERSION.SDK_INT >= 33
+                && ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
         createChannels(context);
-        int notificationId = 8888;
+        int notificationId = (title + (body != null ? body : "") + System.currentTimeMillis()).hashCode();
 
         Intent intent = new Intent(context, com.example.civiclens.ui.NotificationsActivity.class);
         intent.putExtra("notification_title", title);
@@ -186,6 +200,7 @@ public final class NotificationHelper {
 
     @SuppressLint("MissingPermission")
     public static boolean showReminder(Context context, Reminder reminder) {
+        if (context == null || reminder == null) return false;
         if (!remindersEnabled(context)) {
             return false;
         }
@@ -195,6 +210,7 @@ public final class NotificationHelper {
             return false;
         }
 
+        createChannels(context);
         int notificationId = reminder.id.hashCode();
 
         PendingIntent openDetail = PendingIntent.getActivity(context, notificationId,
@@ -218,8 +234,12 @@ public final class NotificationHelper {
                 .addAction(0, context.getString(R.string.reminder_mark_done), markDonePending)
                 .build();
 
-        NotificationManagerCompat.from(context).notify(notificationId, notification);
-        return true;
+        try {
+            NotificationManagerCompat.from(context).notify(notificationId, notification);
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     private static SharedPreferences prefs(Context context) {

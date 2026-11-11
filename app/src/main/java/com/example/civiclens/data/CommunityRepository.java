@@ -397,10 +397,22 @@ public class CommunityRepository {
 
     public void getPostsByCategory(String category, Callback<List<CivicPost>> callback) {
         CivicDatabase.IO.execute(() -> {
-            if ("ALL".equalsIgnoreCase(category) || category == null || category.isEmpty()) {
+            if ("ALL".equalsIgnoreCase(category) || category == null || category.trim().isEmpty()) {
                 deliver(callback, dao.getAllPosts());
             } else {
-                deliver(callback, dao.getPostsByCategory(category));
+                List<CivicPost> filtered = dao.getPostsByCategory(category.trim());
+                if (filtered == null || filtered.isEmpty()) {
+                    List<CivicPost> all = dao.getAllPosts();
+                    List<CivicPost> matches = new ArrayList<>();
+                    for (CivicPost p : all) {
+                        if (p.category != null && (p.category.equalsIgnoreCase(category.trim()) || p.category.contains(category.trim()))) {
+                            matches.add(p);
+                        }
+                    }
+                    deliver(callback, matches.isEmpty() ? all : matches);
+                } else {
+                    deliver(callback, filtered);
+                }
             }
         });
     }

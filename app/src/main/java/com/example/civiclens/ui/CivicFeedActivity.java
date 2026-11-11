@@ -32,6 +32,9 @@ public class CivicFeedActivity extends AppCompatActivity {
     private final ActivityResultLauncher<String[]> pickMedia = registerForActivityResult(
             new ActivityResultContracts.OpenDocument(), uri -> {
                 if (uri == null) return;
+                try {
+                    getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                } catch (Exception ignored) { }
                 attachedMediaUri = uri.toString();
                 com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "📷 Photo / Video Evidence attached to post!", false);
             });
@@ -114,7 +117,11 @@ public class CivicFeedActivity extends AppCompatActivity {
     }
 
     private void loadFeed() {
-        repository.getPostsByCategory(selectedCategory, posts -> adapter.submit(posts));
+        repository.getPostsByCategory(selectedCategory, posts -> {
+            if (!isFinishing() && !isDestroyed()) {
+                adapter.submit(posts != null ? posts : new java.util.ArrayList<>());
+            }
+        });
     }
 
     @Override

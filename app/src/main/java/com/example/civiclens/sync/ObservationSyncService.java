@@ -41,7 +41,11 @@ public class ObservationSyncService extends Service {
         Notification notification = NotificationHelper.buildSyncForegroundNotification(
                 this, "CivicLens Sync Service", "Uploading citizen observation to cloud database...");
         try {
-            startForeground(FOREGROUND_NOTIFICATION_ID, notification);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                startForeground(FOREGROUND_NOTIFICATION_ID, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+            } else {
+                startForeground(FOREGROUND_NOTIFICATION_ID, notification);
+            }
         } catch (Exception ignored) { }
 
         if (intent == null || !FirebaseGate.isReady(this)) {

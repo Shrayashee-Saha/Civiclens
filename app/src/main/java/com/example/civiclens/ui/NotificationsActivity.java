@@ -59,6 +59,13 @@ public class NotificationsActivity extends AppCompatActivity {
         loadNotifications();
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        loadNotifications();
+    }
+
     private void loadNotifications() {
         List<InvitationAdapter.InvitationItem> items = new ArrayList<>();
 
