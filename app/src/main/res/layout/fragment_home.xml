@@ -92,6 +92,49 @@
             android:nestedScrollingEnabled="false"
             android:visibility="gone" />
 
+        <!-- Emergency Helpline Action Chips -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chipDial999"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="38dp"
+                    android:text="📞 999 Emergency"
+                    app:cornerRadius="20dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chipDial333"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:minHeight="38dp"
+                    android:text="📞 333 Civic Helpline"
+                    app:cornerRadius="20dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chipDial106"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:minHeight="38dp"
+                    android:text="📞 106 ACC Anti-Corruption"
+                    app:cornerRadius="20dp" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -335,6 +378,24 @@
                 app:icon="@drawable/ic_pin"
                 app:iconGravity="textStart"
                 app:iconTint="@color/green" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnKidsGame"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="🎮 Kids Integrity Quest Game (নৈতিক শিক্ষা)"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_sparkle"
+                app:iconGravity="textStart" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

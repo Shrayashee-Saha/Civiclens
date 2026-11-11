@@ -1,8 +1,10 @@
 package com.example.civiclens.ui;
 
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +44,17 @@ public class CivicPostAdapter extends RecyclerView.Adapter<CivicPostAdapter.View
         holder.meta.setText(post.district + " · 2 hours ago");
         holder.content.setText(post.content);
 
+        if (post.mediaUrl != null && !post.mediaUrl.trim().isEmpty()) {
+            try {
+                holder.postImage.setImageURI(Uri.parse(post.mediaUrl));
+                holder.postImage.setVisibility(View.VISIBLE);
+            } catch (Exception e) {
+                holder.postImage.setVisibility(View.GONE);
+            }
+        } else {
+            holder.postImage.setVisibility(View.GONE);
+        }
+
         holder.btnSupport.setText("👍 Support (" + post.supportCount + ")");
         holder.btnComment.setText("💬 Comment (" + post.commentCount + ")");
         holder.btnShare.setText("🔄 Share (" + post.shareCount + ")");
@@ -70,6 +83,7 @@ public class CivicPostAdapter extends RecyclerView.Adapter<CivicPostAdapter.View
         final TextView category;
         final TextView meta;
         final TextView content;
+        final ImageView postImage;
         final MaterialButton btnSupport;
         final MaterialButton btnComment;
         final MaterialButton btnShare;
@@ -80,6 +94,7 @@ public class CivicPostAdapter extends RecyclerView.Adapter<CivicPostAdapter.View
             category = itemView.findViewById(R.id.postCategoryChip);
             meta = itemView.findViewById(R.id.postMeta);
             content = itemView.findViewById(R.id.postContent);
+            postImage = itemView.findViewById(R.id.postImage);
             btnSupport = itemView.findViewById(R.id.btnSupport);
             btnComment = itemView.findViewById(R.id.btnComment);
             btnShare = itemView.findViewById(R.id.btnShare);

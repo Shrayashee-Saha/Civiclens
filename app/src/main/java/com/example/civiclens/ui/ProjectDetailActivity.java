@@ -1,5 +1,6 @@
 package com.example.civiclens.ui;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +10,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Calendar;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -122,6 +125,11 @@ public class ProjectDetailActivity extends AppCompatActivity {
                 intent.putExtra(RtiDraftActivity.EXTRA_PROJECT_ID, projectId);
                 startActivity(intent);
             });
+        }
+
+        View calBtn = findViewById(R.id.btnCalendarDeadline);
+        if (calBtn != null) {
+            calBtn.setOnClickListener(v -> saveProjectToCalendar());
         }
 
         MaterialButton subscribeBtn = findViewById(R.id.subscribeProjectButton);
@@ -377,6 +385,25 @@ public class ProjectDetailActivity extends AppCompatActivity {
                     }
                 })
                 .show();
+    }
+
+    private void saveProjectToCalendar() {
+        if (currentProject == null) return;
+        Calendar now = Calendar.getInstance();
+        new DatePickerDialog(this, (view, year, month, day) -> {
+            try {
+                Calendar cal = Calendar.getInstance();
+                cal.set(year, month, day, 9, 0);
+                Intent intent = new Intent(Intent.ACTION_INSERT)
+                        .setData(android.provider.CalendarContract.Events.CONTENT_URI)
+                        .putExtra(android.provider.CalendarContract.Events.TITLE, "CivicLens Hearing & Completion: " + currentProject.name)
+                        .putExtra(android.provider.CalendarContract.Events.DESCRIPTION, "Project completion inspection and public audit hearing for " + currentProject.name + " (" + currentProject.district + ")")
+                        .putExtra(android.provider.CalendarContract.EXTRA_EVENT_BEGIN_TIME, cal.getTimeInMillis())
+                        .putExtra(android.provider.CalendarContract.EXTRA_EVENT_END_TIME, cal.getTimeInMillis() + 3600000);
+                startActivity(intent);
+                com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "📅 Added project deadline to phone calendar!", false);
+            } catch (Exception ignored) { }
+        }, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH)).show();
     }
 
     private static String formatTime(long millis) {

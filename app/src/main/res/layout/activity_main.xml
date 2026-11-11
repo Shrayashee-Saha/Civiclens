@@ -11,6 +11,25 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/navy"
+            app:title="CivicLens BD"
+            app:titleTextColor="@color/white">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnQuickThemeToggle"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="end"
+                android:contentDescription="Toggle Dark Mode"
+                app:icon="@drawable/ic_sparkle"
+                app:iconTint="@color/white" />
+        </com.google.android.material.appbar.MaterialToolbar>
+
         <FrameLayout
             android:id="@+id/fragmentContainer"
             android:layout_width="match_parent"

@@ -29,4 +29,10 @@ public class CivicCommunity {
     public int memberCount = 1;
     public boolean isMember = false;
     public long createdAt = System.currentTimeMillis();
+    public String createdBy = "";
+
+    @androidx.room.Ignore
+    public java.util.Map<String, Boolean> members = new java.util.HashMap<>();
+
+    public CivicCommunity() { }
 }

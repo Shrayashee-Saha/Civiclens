@@ -143,6 +143,20 @@ public class HomeFragment extends Fragment {
             commsBtn.setOnClickListener(v -> startActivity(new Intent(requireContext(), CivicCommunitiesActivity.class)));
         }
 
+        View c999 = view.findViewById(R.id.chipDial999);
+        if (c999 != null) c999.setOnClickListener(v -> IntentHelper.dial(requireContext(), "999"));
+
+        View c333 = view.findViewById(R.id.chipDial333);
+        if (c333 != null) c333.setOnClickListener(v -> IntentHelper.dial(requireContext(), "333"));
+
+        View c106 = view.findViewById(R.id.chipDial106);
+        if (c106 != null) c106.setOnClickListener(v -> IntentHelper.dial(requireContext(), "106"));
+
+        View gameBtn = view.findViewById(R.id.btnKidsGame);
+        if (gameBtn != null) {
+            gameBtn.setOnClickListener(v -> startActivity(new Intent(requireContext(), IntegrityGameActivity.class)));
+        }
+
         new ServiceRepository(requireContext()).getAllServices(list -> {
             if (!isAdded()) return;
             allServices = list;

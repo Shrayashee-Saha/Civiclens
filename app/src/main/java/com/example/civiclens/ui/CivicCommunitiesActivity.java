@@ -31,7 +31,14 @@ public class CivicCommunitiesActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        toolbar.setNavigationOnClickListener(v -> finish());
+        toolbar.setNavigationOnClickListener(v -> {
+            if (isTaskRoot()) {
+                Intent parent = new Intent(this, MainActivity.class);
+                parent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(parent);
+            }
+            finish();
+        });
 
         repository = new CommunityRepository(this);
 
@@ -62,11 +69,28 @@ public class CivicCommunitiesActivity extends AppCompatActivity {
                 currentGroups = groups;
                 List<LineAdapter.Line> lines = new ArrayList<>();
                 for (CivicCommunity c : groups) {
-                    lines.add(new LineAdapter.Line("🌱 " + c.name, c.communityType + " · " + c.district + " · " + c.memberCount + " Members"));
+                    String badge = c.isMember ? " (✓ Joined Member)" : "";
+                    lines.add(new LineAdapter.Line("🌱 " + c.name + badge, c.communityType + " · " + c.district + " · " + c.memberCount + " Members"));
                 }
                 adapter.submit(lines);
             });
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        String uid = com.google.firebase.auth.FirebaseAuth.getInstance().getUid();
+        if (uid != null) {
+            repository.startCommunitySync(uid);
+            repository.startPostSync();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        repository.stopAllSync();
     }
 
     @Override

@@ -1,12 +1,16 @@
 {
   "rules": {
+    "invitations": {
+      ".read": true,
+      ".write": true
+    },
+    "fcm_tokens": {
+      ".read": true,
+      ".write": true
+    },
     "observations": {
-      "$projectId": {
-        "$observationId": {
-          ".read": "auth != null",
-          ".write": "auth != null && (newData.exists() ? newData.child('uid').val() === auth.uid : data.child('uid').val() === auth.uid)"
-        }
-      }
+      ".read": true,
+      ".write": true
     }
   }
 }

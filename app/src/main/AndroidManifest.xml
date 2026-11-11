@@ -44,12 +44,18 @@
 
         <activity
             android:name="com.example.civiclens.ui.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.example.civiclens.ui.IntegrityGameActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.civiclens.ui.MainActivity" />
 
         <activity
             android:name="com.example.civiclens.ui.AgoraCallActivity"
@@ -64,16 +70,19 @@
         <activity
             android:name="com.example.civiclens.ui.CreateGroupActivity"
             android:exported="false"
+            android:windowSoftInputMode="adjustResize"
             android:parentActivityName="com.example.civiclens.ui.MainActivity" />
 
         <activity
             android:name="com.example.civiclens.ui.CivicFeedActivity"
             android:exported="false"
+            android:windowSoftInputMode="adjustResize"
             android:parentActivityName="com.example.civiclens.ui.MainActivity" />
 
         <activity
             android:name="com.example.civiclens.ui.CivicGroupActivity"
             android:exported="false"
+            android:windowSoftInputMode="adjustResize"
             android:parentActivityName="com.example.civiclens.ui.MainActivity" />
 
         <activity
@@ -174,6 +183,18 @@
             android:name="com.example.civiclens.sync.ObservationSyncService"
             android:foregroundServiceType="dataSync"
             android:exported="false" />
+
+        <service
+            android:name="com.example.civiclens.notify.CivicFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="project_alerts" />
 
         <!-- Read-only access to saved observations. exported=false keeps it inside this app. -->
         <provider

@@ -270,9 +270,13 @@ public class SettingsFragment extends Fragment {
                 .setTitle(R.string.settings_language_title)
                 .setSingleChoiceItems(labels, checked, (dialog, which) -> {
                     dialog.dismiss();
-                    // The app restarts its screens in the new language. It stays inside CivicLens.
-                    AppCompatDelegate.setApplicationLocales(
-                            LocaleListCompat.forLanguageTags(LANGUAGE_TAGS[which]));
+                    String tag = LANGUAGE_TAGS[which];
+                    AppPrefs.setLocale(requireContext(), tag);
+                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag));
+                    com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(requireContext(), "🌐 " + labels[which] + " Language Selected!", false);
+                    if (getActivity() != null) {
+                        getActivity().recreate();
+                    }
                 })
                 .setNegativeButton(R.string.settings_cancel, null)
                 .show();

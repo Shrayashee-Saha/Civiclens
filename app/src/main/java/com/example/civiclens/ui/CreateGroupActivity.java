@@ -50,9 +50,11 @@ public class CreateGroupActivity extends AppCompatActivity {
             return;
         }
 
-        repository.createCommunity(name, desc, "Environment", district, "Public Community", () -> {
-            com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "🌱 Civic Community Created & Published!", false);
-            finish();
+        com.example.civiclens.cloud.GroupCloudRepository.createGroup(this, name, desc, district, "Public Community", (success, message, data) -> {
+            repository.createCommunity(name, desc, "Environment", district, "Public Community", () -> {
+                com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "🌱 Civic Community Created & Published!", false);
+                finish();
+            });
         });
     }
 

@@ -173,6 +173,11 @@ public class ReportActivity extends AppCompatActivity {
         findViewById(R.id.shareButton).setOnClickListener(v -> onShare());
         findViewById(R.id.submitButton).setOnClickListener(v -> onSubmit());
 
+        View exportCsvBtn = findViewById(R.id.btnExportCsv);
+        if (exportCsvBtn != null) {
+            exportCsvBtn.setOnClickListener(v -> exportReportsCsv());
+        }
+
         RecyclerView list = findViewById(R.id.reportsList);
         list.setLayoutManager(new LinearLayoutManager(this));
         list.setNestedScrollingEnabled(false);
@@ -467,6 +472,28 @@ public class ReportActivity extends AppCompatActivity {
 
     private static String text(TextInputEditText input) {
         return input.getText() == null ? "" : input.getText().toString().trim();
+    }
+
+    private void exportReportsCsv() {
+        ReportRepository repo = new ReportRepository(this);
+        repo.getAll(reports -> {
+            if (reports == null || reports.isEmpty()) {
+                Toast.makeText(this, "No reports available to export.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            StringBuilder csv = new StringBuilder("Report ID,Category,District,Location,Description,Status,Created At\n");
+            for (CitizenReport r : reports) {
+                csv.append('"').append(r.id).append("\",")
+                   .append('"').append(r.category).append("\",")
+                   .append('"').append(r.district).append("\",")
+                   .append('"').append(r.locationNote).append("\",")
+                   .append('"').append(r.description.replace('"', '\'')).append("\",")
+                   .append('"').append(r.status).append("\",")
+                   .append('"').append(r.createdAt).append("\"\n");
+            }
+            IntentHelper.shareText(this, csv.toString(), "Export CivicLens Reports (CSV)");
+            com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "📥 Reports Exported as CSV!", false);
+        });
     }
 
     private static String formatTime(long millis) {

@@ -36,6 +36,14 @@ public final class AppPrefs {
         prefs(context).edit().putBoolean("dark_mode_enabled", value).apply();
     }
 
+    public static String getLocale(Context context) {
+        return prefs(context).getString("app_locale_tag", "");
+    }
+
+    public static void setLocale(Context context, String tag) {
+        prefs(context).edit().putString("app_locale_tag", tag != null ? tag : "").apply();
+    }
+
     private static SharedPreferences prefs(Context context) {
         return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }

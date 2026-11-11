@@ -37,6 +37,7 @@
                 android:padding="16dp">
 
                 <TextView
+                    android:id="@+id/groupTitleText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="🌱 Environmental Protection Citizen Assembly"
@@ -81,6 +82,18 @@
                         android:text="📹 Video Call"
                         app:cornerRadius="12dp" />
                 </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnInviteMember"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:minHeight="44dp"
+                    android:text="📩 Invite Member by Email"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_sparkle"
+                    app:iconTint="@color/green" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

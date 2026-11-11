@@ -118,6 +118,18 @@
                 android:textSize="13sp"
                 android:visibility="gone" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCalendarDeadline"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:minHeight="48dp"
+                android:text="📅 Save Project Deadline to Phone Calendar"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_doc"
+                app:iconTint="@color/green" />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -89,4 +89,21 @@
     <string name="rti_copy_button">RTI আবেদন খসড়া কপি করুন</string>
     <string name="news_dashboard_title">সংবাদ ও তথ্য ড্যাশবোর্ড</string>
     <string name="reality_index_format">রিয়েলিটি ইনডেক্স স্কোর: %1$d / ১০০ (%2$s)</string>
+
+    <!-- Civic Communities & Assemblies -->
+    <string name="title_civic_communities">নাগরিক অ্যাডভোকেসি ও অ্যাসেম্বলি গ্রুপ</string>
+    <string name="title_civic_feed">নাগরিক ফিড — বাংলাদেশ</string>
+    <string name="btn_create_group">➕ নতুন নাগরিক গ্রুপ তৈরি করুন</string>
+    <string name="btn_voice_call">📞 ভয়েস কল</string>
+    <string name="btn_video_call">📹 ভিডিও কল</string>
+    <string name="btn_invite_member">📩 ইমেইলের মাধ্যমে সদস্য আমন্ত্রণ করুন</string>
+    <string name="btn_accept">✓ গ্রহণ করুন</string>
+    <string name="btn_decline">✕ প্রত্যাখ্যান করুন</string>
+    <string name="btn_post_evidence">➕ ছবি / ভিডিও প্রমাণ পোস্ট করুন</string>
+    <string name="btn_vault">🔐 ডিজিটাল সিটিজেন ভল্ট</string>
+    <string name="btn_ask_ai">✨ এআই সহকারীকে জিজ্ঞেস করুন</string>
+    <string name="btn_report">🚨 নাগরিক অভিযোগ পেশ করুন</string>
+    <string name="btn_exec_dashboard">📊 এক্সিকিউটিভ ড্যাশবোর্ড</string>
+    <string name="btn_helplines">📞 জরুরী হেল্পলাইন</string>
+    <string name="btn_map_explorer">🗺️ মানচিত্র এক্সপ্লোরার</string>
 </resources>

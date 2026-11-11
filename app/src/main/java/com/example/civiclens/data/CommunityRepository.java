@@ -4,12 +4,23 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.example.civiclens.firebase.FirebaseGate;
 import com.example.civiclens.model.CivicCommunity;
 import com.example.civiclens.model.CivicPost;
-import com.example.civiclens.model.GroupMessage;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class CommunityRepository {
@@ -18,15 +29,47 @@ public class CommunityRepository {
         void onResult(T value);
     }
 
+    public interface ResultCallback {
+        void onSuccess();
+        void onError(String error);
+    }
+
+    private static final String DB_URL =
+            "https://civiclens-e2000-default-rtdb.asia-southeast1.firebasedatabase.app";
+
     private final CommunityDao dao;
+    private final DatabaseReference root;
     private final Handler main = new Handler(Looper.getMainLooper());
 
+    private ValueEventListener communityListener;
+    private ValueEventListener postListener;
+
     public CommunityRepository(Context context) {
-        this.dao = CivicDatabase.get(context).communityDao();
+        dao = CivicDatabase.get(context).communityDao();
+        if (FirebaseGate.isReady(context)) {
+            root = FirebaseDatabase.getInstance(DB_URL).getReference();
+        } else {
+            root = null;
+        }
+    }
+
+    private String getUserId() {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            return null;
+        }
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
+    private void showError(ResultCallback callback, String error) {
+        main.post(() -> {
+            if (callback != null) callback.onError(error);
+        });
     }
 
     private <T> void deliver(Callback<T> callback, T value) {
-        main.post(() -> callback.onResult(value));
+        main.post(() -> {
+            if (callback != null) callback.onResult(value);
+        });
     }
 
     public void seedIfEmpty(Runnable onDone) {
@@ -135,18 +178,118 @@ public class CommunityRepository {
         });
     }
 
-    public void getAllPosts(Callback<List<CivicPost>> callback) {
-        CivicDatabase.IO.execute(() -> deliver(callback, dao.getAllPosts()));
-    }
-
-    public void getPostsByCategory(String category, Callback<List<CivicPost>> callback) {
+    public void createCommunity(String name, String desc, String category, String district, String type, Runnable onDone) {
         CivicDatabase.IO.execute(() -> {
-            if ("ALL".equalsIgnoreCase(category) || category == null || category.isEmpty()) {
-                deliver(callback, dao.getAllPosts());
-            } else {
-                deliver(callback, dao.getPostsByCategory(category));
+            CivicCommunity c = new CivicCommunity();
+            c.id = UUID.randomUUID().toString();
+            c.name = name;
+            c.description = desc;
+            c.category = category;
+            c.district = district;
+            c.communityType = type;
+            c.memberCount = 1;
+            c.isMember = true;
+            c.createdAt = System.currentTimeMillis();
+
+            dao.insertCommunity(c);
+
+            if (root != null) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("id", c.id);
+                data.put("name", name.trim());
+                data.put("description", desc);
+                data.put("category", category);
+                data.put("district", district);
+                data.put("communityType", type);
+                data.put("createdBy", getUserId() != null ? getUserId() : "local");
+                data.put("createdAt", System.currentTimeMillis());
+                data.put("memberCount", 1);
+
+                root.child("communities").child(c.id).setValue(data);
+            }
+
+            if (onDone != null) {
+                main.post(onDone);
             }
         });
+    }
+
+    public void joinCommunityByName(String name, Runnable onDone) {
+        if (name == null || name.isEmpty()) return;
+        CivicDatabase.IO.execute(() -> {
+            List<CivicCommunity> all = dao.getAllCommunities();
+            boolean found = false;
+            for (CivicCommunity c : all) {
+                if (c.name.equalsIgnoreCase(name.trim())) {
+                    if (!c.isMember) {
+                        c.isMember = true;
+                        c.memberCount++;
+                        dao.insertCommunity(c);
+                    }
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                CivicCommunity c = new CivicCommunity();
+                c.id = UUID.randomUUID().toString();
+                c.name = name.trim();
+                c.description = "Citizen environmental and public advocacy group.";
+                c.category = "Environment";
+                c.district = "Dhaka";
+                c.communityType = CivicCommunity.TYPE_PUBLIC;
+                c.memberCount = 2;
+                c.isMember = true;
+                dao.insertCommunity(c);
+            }
+            if (onDone != null) {
+                main.post(onDone);
+            }
+        });
+    }
+
+    public void joinCommunity(String communityId, ResultCallback callback) {
+        String uid = getUserId();
+
+        if (communityId == null || communityId.trim().isEmpty()) {
+            showError(callback, "Invalid community ID.");
+            return;
+        }
+
+        CivicDatabase.IO.execute(() -> {
+            CivicCommunity c = dao.getCommunityById(communityId);
+            if (c != null && !c.isMember) {
+                c.isMember = true;
+                c.memberCount++;
+                dao.insertCommunity(c);
+            }
+            if (callback != null) {
+                main.post(callback::onSuccess);
+            }
+        });
+
+        if (root != null && uid != null) {
+            DatabaseReference communityRef = root.child("communities").child(communityId);
+            communityRef.runTransaction(new Transaction.Handler() {
+                @Override
+                public Transaction.Result doTransaction(MutableData data) {
+                    if (data.getValue() == null) {
+                        return Transaction.abort();
+                    }
+                    MutableData members = data.child("members");
+                    if (Boolean.TRUE.equals(members.child(uid).getValue(Boolean.class))) {
+                        return Transaction.abort();
+                    }
+                    members.child(uid).setValue(true);
+                    Integer count = data.child("memberCount").getValue(Integer.class);
+                    data.child("memberCount").setValue(count == null ? 1 : count + 1);
+                    return Transaction.success(data);
+                }
+
+                @Override
+                public void onComplete(DatabaseError error, boolean committed, DataSnapshot snapshot) { }
+            });
+        }
     }
 
     public void createPost(String authorName, String category, String district, String type, String content, String mediaUrl, Runnable onDone) {
@@ -162,32 +305,101 @@ public class CommunityRepository {
             p.createdAt = System.currentTimeMillis();
 
             dao.insertPost(p);
+
+            if (root != null) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("id", p.id);
+                data.put("authorName", p.authorName);
+                data.put("category", category);
+                data.put("district", district);
+                data.put("postType", type);
+                data.put("content", content);
+                data.put("mediaUrl", mediaUrl);
+                data.put("createdAt", p.createdAt);
+
+                root.child("posts").child(p.id).setValue(data);
+            }
+
             if (onDone != null) {
                 main.post(onDone);
             }
         });
     }
 
+    public void startCommunitySync(String uid) {
+        if (root == null || uid == null) return;
+        stopCommunitySync();
+        communityListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                CivicDatabase.IO.execute(() -> {
+                    for (DataSnapshot child : snapshot.getChildren()) {
+                        CivicCommunity c = child.getValue(CivicCommunity.class);
+                        if (c == null) continue;
+                        c.id = child.getKey();
+                        c.isMember = child.child("members").hasChild(uid);
+                        dao.insertCommunity(c);
+                    }
+                });
+            }
+            @Override public void onCancelled(DatabaseError error) { }
+        };
+        root.child("communities").addValueEventListener(communityListener);
+    }
+
+    public void startPostSync() {
+        if (root == null) return;
+        stopPostSync();
+        postListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                CivicDatabase.IO.execute(() -> {
+                    for (DataSnapshot child : snapshot.getChildren()) {
+                        CivicPost p = child.getValue(CivicPost.class);
+                        if (p == null) continue;
+                        p.id = child.getKey();
+                        dao.insertPost(p);
+                    }
+                });
+            }
+            @Override public void onCancelled(DatabaseError error) { }
+        };
+        root.child("posts").addValueEventListener(postListener);
+    }
+
+    public void stopCommunitySync() {
+        if (root != null && communityListener != null) {
+            root.child("communities").removeEventListener(communityListener);
+            communityListener = null;
+        }
+    }
+
+    public void stopPostSync() {
+        if (root != null && postListener != null) {
+            root.child("posts").removeEventListener(postListener);
+            postListener = null;
+        }
+    }
+
+    public void stopAllSync() {
+        stopCommunitySync();
+        stopPostSync();
+    }
+
     public void getAllCommunities(Callback<List<CivicCommunity>> callback) {
         CivicDatabase.IO.execute(() -> deliver(callback, dao.getAllCommunities()));
     }
 
-    public void createCommunity(String name, String desc, String category, String district, String type, Runnable onDone) {
-        CivicDatabase.IO.execute(() -> {
-            CivicCommunity c = new CivicCommunity();
-            c.id = UUID.randomUUID().toString();
-            c.name = name;
-            c.description = desc;
-            c.category = category;
-            c.district = district;
-            c.communityType = type;
-            c.memberCount = 1;
-            c.isMember = true;
-            c.createdAt = System.currentTimeMillis();
+    public void getAllPosts(Callback<List<CivicPost>> callback) {
+        CivicDatabase.IO.execute(() -> deliver(callback, dao.getAllPosts()));
+    }
 
-            dao.insertCommunity(c);
-            if (onDone != null) {
-                main.post(onDone);
+    public void getPostsByCategory(String category, Callback<List<CivicPost>> callback) {
+        CivicDatabase.IO.execute(() -> {
+            if ("ALL".equalsIgnoreCase(category) || category == null || category.isEmpty()) {
+                deliver(callback, dao.getAllPosts());
+            } else {
+                deliver(callback, dao.getPostsByCategory(category));
             }
         });
     }

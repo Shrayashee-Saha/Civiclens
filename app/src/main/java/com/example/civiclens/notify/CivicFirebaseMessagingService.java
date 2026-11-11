@@ -39,11 +39,17 @@ public class CivicFirebaseMessagingService extends FirebaseMessagingService {
             }
         }
 
-        NotificationHelper.showProjectAlert(getApplicationContext(), title, body, projectId);
+        NotificationHelper.showDirectAlert(getApplicationContext(), title, body);
     }
 
     @Override
     public void onNewToken(@NonNull String token) {
         super.onNewToken(token);
+        try {
+            com.google.firebase.database.FirebaseDatabase.getInstance("https://civiclens-e2000-default-rtdb.asia-southeast1.firebasedatabase.app")
+                    .getReference("fcm_tokens")
+                    .child(token.replaceAll("[^a-zA-Z0-9_-]", "_"))
+                    .setValue(token);
+        } catch (Exception ignored) { }
     }
 }

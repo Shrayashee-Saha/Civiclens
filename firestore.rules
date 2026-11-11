@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // User profile and FCM token storage
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Group metadata and members subcollection
+    match /groups/{groupId} {
+      // Group documents read-only by members
+      allow read: if request.auth != null &&
+        exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid));
+      allow write: if false; // All writes enforced through Java Cloud Functions
+
+      match /members/{memberId} {
+        allow read: if request.auth != null &&
+          exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid));
+        allow write: if false; // All writes enforced through Java Cloud Functions
+      }
+    }
+
+    // Invitations collection
+    match /invitations/{invitationId} {
+      allow read: if request.auth != null &&
+        (resource.data.senderId == request.auth.uid || resource.data.receiverId == request.auth.uid);
+      allow write: if false; // All writes enforced through Java Cloud Functions
+    }
+  }
+}

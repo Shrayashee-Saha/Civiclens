@@ -47,6 +47,9 @@ public final class NotificationHelper {
                         "Project & Infrastructure Alerts",
                         NotificationManager.IMPORTANCE_HIGH);
                 channelAlerts.setDescription("Alerts for followed projects, news reports, budget revisions, and citizen observations.");
+                channelAlerts.enableVibration(true);
+                channelAlerts.setVibrationPattern(new long[]{0, 250, 250, 250});
+                channelAlerts.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
                 manager.createNotificationChannel(channelAlerts);
             }
         }
@@ -124,11 +127,61 @@ public final class NotificationHelper {
                 .setContentText(body)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setDefaults(Notification.DEFAULT_ALL)
                 .build();
 
         NotificationManagerCompat.from(context).notify(notificationId, notification);
         return true;
+    }
+
+    @SuppressLint("MissingPermission")
+    public static void showDirectAlert(Context context, String title, String body) {
+        if (context == null) return;
+        createChannels(context);
+        int notificationId = 8888;
+
+        Intent intent = new Intent(context, com.example.civiclens.ui.NotificationsActivity.class);
+        intent.putExtra("notification_title", title);
+        intent.putExtra("notification_sender", body);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, notificationId, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        Intent acceptIntent = new Intent(context, com.example.civiclens.ui.NotificationsActivity.class);
+        acceptIntent.putExtra("notification_title", title);
+        acceptIntent.putExtra("notification_sender", body);
+        acceptIntent.putExtra("action_status", "ACCEPTED");
+        PendingIntent acceptPending = PendingIntent.getActivity(context, notificationId + 1, acceptIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        Intent declineIntent = new Intent(context, com.example.civiclens.ui.NotificationsActivity.class);
+        declineIntent.putExtra("notification_title", title);
+        declineIntent.putExtra("notification_sender", body);
+        declineIntent.putExtra("action_status", "DECLINED");
+        PendingIntent declinePending = PendingIntent.getActivity(context, notificationId + 2, declineIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        Notification notification = new NotificationCompat.Builder(context, CHANNEL_PROJECT_ALERTS)
+                .setSmallIcon(R.drawable.ic_bell)
+                .setContentTitle(title)
+                .setContentText(body)
+                .setContentIntent(pendingIntent)
+                .addAction(R.drawable.ic_shield, "✓ ACCEPT", acceptPending)
+                .addAction(R.drawable.ic_report, "✕ DECLINE", declinePending)
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setCategory(NotificationCompat.CATEGORY_CALL)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .build();
+
+        try {
+            NotificationManagerCompat.from(context).notify(notificationId, notification);
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(
+                        context, title + "\n" + body, false);
+            });
+        } catch (Exception ignored) { }
     }
 
     @SuppressLint("MissingPermission")

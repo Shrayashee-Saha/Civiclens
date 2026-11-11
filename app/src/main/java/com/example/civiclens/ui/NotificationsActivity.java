@@ -1,5 +1,6 @@
 package com.example.civiclens.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -10,8 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.example.civiclens.R;
-import com.example.civiclens.data.ProjectRepository;
-import com.example.civiclens.data.ReportRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +20,7 @@ import java.util.List;
  */
 public class NotificationsActivity extends AppCompatActivity {
 
-    private LineAdapter adapter;
+    private InvitationAdapter adapter;
     private TextView emptyText;
 
     @Override
@@ -34,34 +33,72 @@ public class NotificationsActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        toolbar.setNavigationOnClickListener(v -> finish());
+        toolbar.setNavigationOnClickListener(v -> {
+            if (isTaskRoot()) {
+                Intent parent = new Intent(this, MainActivity.class);
+                parent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(parent);
+            }
+            finish();
+        });
 
         emptyText = findViewById(R.id.notificationsEmpty);
         RecyclerView list = findViewById(R.id.notificationsList);
         list.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new LineAdapter();
+        adapter = new InvitationAdapter();
         list.setAdapter(adapter);
+
+        View clearBtn = findViewById(R.id.btnClearInbox);
+        if (clearBtn != null) {
+            clearBtn.setOnClickListener(v -> {
+                adapter.submit(new ArrayList<>());
+                if (emptyText != null) emptyText.setVisibility(View.VISIBLE);
+                com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "🧹 Notification Inbox Cleared", false);
+            });
+        }
 
         loadNotifications();
     }
 
     private void loadNotifications() {
-        List<LineAdapter.Line> lines = new ArrayList<>();
+        List<InvitationAdapter.InvitationItem> items = new ArrayList<>();
 
-        // Add System & Project Alert Notifications
-        lines.add(new LineAdapter.Line("🚨 System Alert: Low Battery Receiver Registered", "System Broadcast · Battery level below 15% notification trigger active"));
-        lines.add(new LineAdapter.Line("📢 Project Alert: Dhaka Elevated Expressway", "Infrastructure Probe · CAG Audit finding Tk 116.08 Million Irregularity flagged"));
-        lines.add(new LineAdapter.Line("⚡ Utility Alert: DESCO Smart Meter Sync", "Foreground Service · ObservationSyncService active with dataSync foreground service"));
+        android.content.Intent intent = getIntent();
+        if (intent != null) {
+            String actionStatus = intent.getStringExtra("action_status");
+            String customTitle = intent.getStringExtra("notification_title");
+            String customSender = intent.getStringExtra("notification_sender");
 
-        new ReportRepository(this).getAll(reports -> {
-            if (reports != null) {
-                for (com.example.civiclens.model.CitizenReport r : reports) {
-                    lines.add(new LineAdapter.Line("📄 Report Tracked: " + r.category + " (" + r.district + ")", "Status: " + r.status + " · Route: " + (r.officeName != null ? r.officeName : "Direct Office Router")));
+            if (customTitle != null && !customTitle.isEmpty()) {
+                items.add(new InvitationAdapter.InvitationItem(
+                        "inv_dyn_1",
+                        customTitle,
+                        customSender != null ? customSender : "Citizen Activist",
+                        actionStatus != null ? actionStatus : "PENDING"
+                ));
+            } else if (actionStatus != null) {
+                items.add(new InvitationAdapter.InvitationItem(
+                        "inv_dyn_1",
+                        "📩 Group Invitation: Environmental Protection Assembly",
+                        "activist@civiclens.org",
+                        actionStatus
+                ));
+                if ("ACCEPTED".equalsIgnoreCase(actionStatus)) {
+                    com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, "✓ Joined group successfully!", false);
+                    startActivity(new android.content.Intent(this, CivicGroupActivity.class));
                 }
             }
-            adapter.submit(lines);
-            emptyText.setVisibility(lines.isEmpty() ? View.VISIBLE : View.GONE);
-        });
+        }
+
+        items.add(new InvitationAdapter.InvitationItem("inv_1", "📩 Group Invitation: Save the Sundarbans Alliance", "advocate.rahman@mopa.gov.bd", "PENDING"));
+        items.add(new InvitationAdapter.InvitationItem("inv_2", "📩 Group Invitation: Protect Khulna Wetlands", "gazipur.activist@civiclens.org", "PENDING"));
+        items.add(new InvitationAdapter.InvitationItem("inv_3", "📩 Group Invitation: Safe Roads & Infrastructure Assembly", "sylhet.engineer@rhd.gov.bd", "PENDING"));
+
+        items.add(new InvitationAdapter.InvitationItem("sys_1", "🚨 System Alert: Low Battery Receiver Registered", "System Broadcast", "ACCEPTED"));
+        items.add(new InvitationAdapter.InvitationItem("sys_2", "📢 Project Alert: Dhaka Elevated Expressway CAG Audit Flag", "CAG Audit Office", "ACCEPTED"));
+
+        adapter.submit(items);
+        emptyText.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     @Override

@@ -40,7 +40,7 @@ import java.util.concurrent.Executors;
                 com.example.civiclens.model.CivicCommunity.class,
                 com.example.civiclens.model.GroupMessage.class
         },
-        version = 10,
+        version = 11,
         exportSchema = false)
 public abstract class CivicDatabase extends RoomDatabase {
 

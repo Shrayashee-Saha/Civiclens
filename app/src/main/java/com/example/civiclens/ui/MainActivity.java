@@ -80,6 +80,37 @@ public class MainActivity extends AppCompatActivity {
             fabAsk.setOnClickListener(v -> startActivity(new Intent(this, AskActivity.class)));
         }
 
+        View themeBtn = findViewById(R.id.btnQuickThemeToggle);
+        if (themeBtn != null) {
+            themeBtn.setOnClickListener(v -> {
+                boolean newDark = !AppPrefs.isDarkMode(this);
+                AppPrefs.setDarkMode(this, newDark);
+                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(
+                        newDark ? androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES : androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+                com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(this, newDark ? "🌙 Dark Theme Active" : "☀️ Light Theme Active", false);
+            });
+        }
+
+        com.example.civiclens.auth.AuthRepository auth = new com.example.civiclens.auth.AuthRepository();
+        com.example.civiclens.cloud.CloudInvitationRepository.listenForCrossDeviceInvitations(
+                this, auth.currentEmail()
+        );
+
+        com.google.firebase.messaging.FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        android.util.Log.e("CivicLensFCM", "Token failed", task.getException());
+                        return;
+                    }
+                    String token = task.getResult();
+                    android.util.Log.d("CivicLensFCM", "FCM TOKEN: " + token);
+                });
+
+        try {
+            com.google.firebase.messaging.FirebaseMessaging.getInstance().subscribeToTopic("all_citizens");
+            com.google.firebase.messaging.FirebaseMessaging.getInstance().subscribeToTopic("invitations");
+        } catch (Exception ignored) { }
+
         // Only open sign-in page if Firebase is configured, user is NOT signed in, and prompt hasn't been skipped before.
         if (savedInstanceState == null && FirebaseGate.isReady(this) && !new AuthRepository().isSignedIn() && !AppPrefs.hasSeenSignInPrompt(this)) {
             startActivity(new Intent(this, SignInActivity.class));

@@ -88,4 +88,21 @@
     <string name="rti_copy_button">Copy RTI Application Draft</string>
     <string name="news_dashboard_title">News Intelligence Dashboard</string>
     <string name="reality_index_format">Reality Index Score: %1$d / 100 (%2$s)</string>
+
+    <!-- Civic Communities & Assemblies -->
+    <string name="title_civic_communities">Civic Communities &amp; Advocacy Groups</string>
+    <string name="title_civic_feed">Civic Feed — Bangladesh</string>
+    <string name="btn_create_group">➕ Create New Civic Action Group</string>
+    <string name="btn_voice_call">📞 Voice Call</string>
+    <string name="btn_video_call">📹 Video Call</string>
+    <string name="btn_invite_member">📩 Invite Member by Email</string>
+    <string name="btn_accept">✓ Accept</string>
+    <string name="btn_decline">✕ Decline</string>
+    <string name="btn_post_evidence">➕ Post Photo / Video Evidence</string>
+    <string name="btn_vault">🔐 Digital Citizen Vault</string>
+    <string name="btn_ask_ai">✨ Ask AI Assistant</string>
+    <string name="btn_report">🚨 Report Civic Problem</string>
+    <string name="btn_exec_dashboard">📊 Executive Dashboard</string>
+    <string name="btn_helplines">📞 Helplines</string>
+    <string name="btn_map_explorer">🗺️ Map Explorer</string>
 </resources>

@@ -102,7 +102,7 @@ public final class AccessibilityHelper {
         }
     }
 
-    /** Exports official documents (RTI Applications, Complaints) to PDF */
+    /** Exports official documents (RTI Applications, Complaints) to PDF with styled formatting */
     public static void exportToPdf(Context context, String title, String content) {
         if (context == null || content == null || content.isEmpty()) return;
         try {
@@ -112,37 +112,66 @@ public final class AccessibilityHelper {
             android.graphics.pdf.PdfDocument.Page page = pdfDocument.startPage(pageInfo);
 
             android.graphics.Canvas canvas = page.getCanvas();
-            android.graphics.Paint paint = new android.graphics.Paint();
-            paint.setTextSize(13f);
-            paint.setColor(android.graphics.Color.BLACK);
 
-            android.graphics.Paint titlePaint = new android.graphics.Paint();
-            titlePaint.setTextSize(18f);
-            titlePaint.setFakeBoldText(true);
-            titlePaint.setColor(android.graphics.Color.parseColor("#0F172A"));
+            // 1. Draw Navy Header Banner
+            android.graphics.Paint headerPaint = new android.graphics.Paint();
+            headerPaint.setColor(android.graphics.Color.parseColor("#0F172A"));
+            canvas.drawRect(0, 0, 595, 80, headerPaint);
 
-            canvas.drawText(title, 40, 50, titlePaint);
+            // 2. Draw Header Text
+            android.graphics.Paint headerTitlePaint = new android.graphics.Paint();
+            headerTitlePaint.setColor(android.graphics.Color.WHITE);
+            headerTitlePaint.setTextSize(15f);
+            headerTitlePaint.setFakeBoldText(true);
+            canvas.drawText("PEOPLE'S REPUBLIC OF BANGLADESH — RTI FORM 'KA'", 30, 42, headerTitlePaint);
+
+            android.graphics.Paint subHeaderPaint = new android.graphics.Paint();
+            subHeaderPaint.setColor(android.graphics.Color.parseColor("#10B981"));
+            subHeaderPaint.setTextSize(10f);
+            canvas.drawText("RIGHT TO INFORMATION ACT 2009 — OFFICIAL LEGAL APPLICATION", 30, 62, subHeaderPaint);
+
+            // 3. Draw Outer Border Box
+            android.graphics.Paint borderPaint = new android.graphics.Paint();
+            borderPaint.setStyle(android.graphics.Paint.Style.STROKE);
+            borderPaint.setStrokeWidth(1.5f);
+            borderPaint.setColor(android.graphics.Color.parseColor("#CBD5E1"));
+            canvas.drawRect(20, 95, 575, 810, borderPaint);
+
+            // 4. Draw Document Text Content
+            android.graphics.Paint textPaint = new android.graphics.Paint();
+            textPaint.setTextSize(11f);
+            textPaint.setColor(android.graphics.Color.parseColor("#0F172A"));
 
             String[] lines = content.split("\n");
-            int y = 90;
+            int y = 125;
             for (String line : lines) {
-                if (y > 800) break;
-                canvas.drawText(line, 40, y, paint);
-                y += 20;
+                if (y > 720) break;
+                canvas.drawText(line, 40, y, textPaint);
+                y += 18;
             }
+
+            // 5. Draw Official Signature Box
+            canvas.drawLine(380, 760, 550, 760, borderPaint);
+            android.graphics.Paint sigPaint = new android.graphics.Paint();
+            sigPaint.setTextSize(10f);
+            sigPaint.setColor(android.graphics.Color.GRAY);
+            canvas.drawText("Signature of Applicant & Date", 390, 775, sigPaint);
 
             pdfDocument.finishPage(page);
 
-            java.io.File pdfFile = new java.io.File(context.getExternalFilesDir(null), title.replaceAll("[^a-zA-Z0-9]", "_") + ".pdf");
+            java.io.File downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS);
+            if (!downloadsDir.exists()) downloadsDir.mkdirs();
+            java.io.File pdfFile = new java.io.File(downloadsDir, title.replaceAll("[^a-zA-Z0-9]", "_") + ".pdf");
             java.io.FileOutputStream fos = new java.io.FileOutputStream(pdfFile);
             pdfDocument.writeTo(fos);
             pdfDocument.close();
             fos.close();
 
             vibrateSuccess(context);
-            Toast.makeText(context, "📄 PDF Exported to: " + pdfFile.getName(), Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "📄 Official PDF Saved: " + pdfFile.getName(), Toast.LENGTH_LONG).show();
+            com.example.civiclens.ui.IntentHelper.openPdfFile(context, pdfFile);
         } catch (Exception e) {
-            Toast.makeText(context, "Failed to export PDF.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Failed to export PDF: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 }

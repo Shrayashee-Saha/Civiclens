@@ -107,6 +107,20 @@ public final class IntentHelper {
         }
     }
 
+    public static void openPdfFile(Context context, java.io.File pdfFile) {
+        if (context == null || pdfFile == null || !pdfFile.exists()) return;
+        try {
+            Uri uri = androidx.core.content.FileProvider.getUriForFile(
+                    context, context.getPackageName() + ".provider", pdfFile);
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(uri, "application/pdf");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        } catch (Exception e) {
+            shareText(context, "RTI Document generated: " + pdfFile.getAbsolutePath(), "Share PDF Document");
+        }
+    }
+
     private static void start(Context context, Intent intent) {
         try {
             context.startActivity(intent);

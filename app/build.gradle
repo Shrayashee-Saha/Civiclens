@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services'
 }
 
 // Values come from local.properties (never committed):
@@ -94,6 +95,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     implementation 'androidx.room:room-runtime:2.6.1'
+    implementation 'com.google.firebase:firebase-inappmessaging-display:23.0.0'
     annotationProcessor 'androidx.room:room-compiler:2.6.1'
 
     implementation 'androidx.work:work-runtime:2.9.1'
@@ -106,6 +108,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-database'
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.firebase:firebase-functions'
 
     // Used by the content provider's raw SQL query.
     implementation 'androidx.sqlite:sqlite:2.4.0'

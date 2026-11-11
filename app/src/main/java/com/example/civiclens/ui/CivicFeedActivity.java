@@ -46,7 +46,14 @@ public class CivicFeedActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        toolbar.setNavigationOnClickListener(v -> finish());
+        toolbar.setNavigationOnClickListener(v -> {
+            if (isTaskRoot()) {
+                Intent parent = new Intent(this, MainActivity.class);
+                parent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(parent);
+            }
+            finish();
+        });
 
         repository = new CommunityRepository(this);
         repository.seedIfEmpty(null);

@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "540160667214",
+    "firebase_url": "https://civiclens-e2000-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "civiclens-e2000",
     "storage_bucket": "civiclens-e2000.firebasestorage.app"
   },

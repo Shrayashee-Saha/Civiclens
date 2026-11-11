@@ -36,4 +36,7 @@ public class CivicPost {
     public int commentCount = 0;
     public int shareCount = 0;
     public long createdAt = System.currentTimeMillis();
+    public String authorId = "";
+
+    public CivicPost() { }
 }
