@@ -78,11 +78,19 @@ public class CloudInvitationRepository {
                 } catch (Exception ignored) { }
             }
 
+            final long appLaunchTime = System.currentTimeMillis() - 2000;
+
             activeChildListener = new com.google.firebase.database.ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot snapshot, String previousChildName) {
                     if (snapshot.exists()) {
+                        Long timestamp = snapshot.child("timestamp").getValue(Long.class);
+                        if (timestamp != null && timestamp < appLaunchTime) {
+                            return; // Filter out historical invitations from earlier app sessions!
+                        }
+
                         String groupName = snapshot.child("groupName").getValue(String.class);
+                        String groupId = snapshot.child("groupId").getValue(String.class);
                         String senderEmail = snapshot.child("senderEmail").getValue(String.class);
                         String targetEmail = snapshot.child("targetEmail").getValue(String.class);
 
@@ -94,16 +102,16 @@ public class CloudInvitationRepository {
                         // 2. Verify target recipient match
                         boolean isTargetForMe = false;
                         if (myEmail == null || myEmail.trim().isEmpty() || "general_citizen".equals(myKey)) {
-                            isTargetForMe = true; // Guest mode receives alerts
+                            isTargetForMe = true;
                         } else if (targetEmail != null && (targetEmail.trim().equalsIgnoreCase(myEmail.trim()) || cleanEmailKey(targetEmail).equals(myKey))) {
-                            isTargetForMe = true; // Direct recipient email match
+                            isTargetForMe = true;
                         }
 
                         if (isTargetForMe && groupName != null) {
                             NotificationHelper.showDirectAlert(
                                     context,
-                                    "📩 New Group Invitation",
-                                    "You received a group invitation from " + (senderEmail != null ? senderEmail : "Citizen") + " for: " + groupName
+                                    "📩 Group Invitation: " + groupName,
+                                    (senderEmail != null ? senderEmail : "Citizen Activist") + " invited you to join " + groupName + " [GroupID:" + (groupId != null ? groupId : "comm_1") + "]"
                             );
                         }
                     }
