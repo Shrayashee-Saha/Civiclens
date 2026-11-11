@@ -132,17 +132,32 @@ public class CivicGroupActivity extends AppCompatActivity {
         if (msg.isEmpty()) return;
 
         com.example.civiclens.accessibility.AccessibilityHelper.vibrateSuccess(this);
-        chatMessages.add(new LineAdapter.Line("👤 You", msg));
+        com.example.civiclens.auth.AuthRepository auth = new com.example.civiclens.auth.AuthRepository();
+        String sender = auth.currentEmail() != null ? auth.currentEmail() : "You";
+
+        String groupId = getIntent().getStringExtra("group_id");
+        if (groupId == null || groupId.isEmpty()) groupId = "group_default_assembly";
+
+        new com.example.civiclens.data.CommunityRepository(this).sendGroupMessage(groupId, sender, msg, null);
+
+        chatMessages.add(new LineAdapter.Line("👤 " + sender, msg));
         chatAdapter.submit(chatMessages);
         messageInput.setText("");
-        Toast.makeText(this, "Message sent to Civic Group!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Message sent & synced to Cloud!", Toast.LENGTH_SHORT).show();
     }
 
     private void startVoiceCall() {
         com.example.civiclens.accessibility.AccessibilityHelper.vibrateSuccess(this);
         String groupName = getIntent().getStringExtra("group_name");
         String channel = groupName != null && !groupName.isEmpty() ? "CivicLens_" + groupName.replaceAll("[^a-zA-Z0-9_-]", "_") : "CivicLens_Assembly_Group";
-        android.content.Intent intent = new android.content.Intent(this, AgoraCallActivity.class);
+
+        com.example.civiclens.auth.AuthRepository auth = new com.example.civiclens.auth.AuthRepository();
+        String sender = auth.currentEmail() != null ? auth.currentEmail() : "Citizen Activist";
+
+        com.example.civiclens.cloud.CloudInvitationRepository.sendInvitation(this, sender, "assembly_members", "📞 INCOMING VOICE CALL: " + (groupName != null ? groupName : "Civic Group"));
+        com.example.civiclens.notify.NotificationHelper.showDirectAlert(this, "📞 Assembly Call Active", "Connected to Voice Meeting: " + channel);
+
+        Intent intent = new Intent(this, AgoraCallActivity.class);
         intent.putExtra(AgoraCallActivity.EXTRA_CHANNEL_NAME, channel);
         intent.putExtra(AgoraCallActivity.EXTRA_IS_VIDEO, false);
         startActivity(intent);
@@ -152,7 +167,14 @@ public class CivicGroupActivity extends AppCompatActivity {
         com.example.civiclens.accessibility.AccessibilityHelper.vibrateSuccess(this);
         String groupName = getIntent().getStringExtra("group_name");
         String channel = groupName != null && !groupName.isEmpty() ? "CivicLens_" + groupName.replaceAll("[^a-zA-Z0-9_-]", "_") : "CivicLens_Assembly_Group";
-        android.content.Intent intent = new android.content.Intent(this, AgoraCallActivity.class);
+
+        com.example.civiclens.auth.AuthRepository auth = new com.example.civiclens.auth.AuthRepository();
+        String sender = auth.currentEmail() != null ? auth.currentEmail() : "Citizen Activist";
+
+        com.example.civiclens.cloud.CloudInvitationRepository.sendInvitation(this, sender, "assembly_members", "📹 INCOMING VIDEO CALL: " + (groupName != null ? groupName : "Civic Group"));
+        com.example.civiclens.notify.NotificationHelper.showDirectAlert(this, "📹 Assembly Call Active", "Connected to Video Meeting: " + channel);
+
+        Intent intent = new Intent(this, AgoraCallActivity.class);
         intent.putExtra(AgoraCallActivity.EXTRA_CHANNEL_NAME, channel);
         intent.putExtra(AgoraCallActivity.EXTRA_IS_VIDEO, true);
         startActivity(intent);

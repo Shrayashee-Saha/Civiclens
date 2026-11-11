@@ -54,6 +54,16 @@ public final class DivisionalOfficeData {
                 "not verified. Contact is from a published list, confirm before calling.",
                 "NOT VERIFIED"));
 
+        list.add(office("div_khulna", "Khulna", "Divisional Commissioner's Office, Khulna",
+                "02477720001", "divcomkhulna@mopa.gov.bd",
+                "not verified. Contact is from a published list, confirm before calling.",
+                "NOT VERIFIED"));
+
+        list.add(office("div_mymensingh", "Mymensingh", "Divisional Commissioner's Office, Mymensingh",
+                "02997710001", "divcommymensingh@mopa.gov.bd",
+                "not verified. Contact is from a published list, confirm before calling.",
+                "NOT VERIFIED"));
+
         return list;
     }
 

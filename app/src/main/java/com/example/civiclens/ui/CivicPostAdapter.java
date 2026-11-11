@@ -1,5 +1,6 @@
 package com.example.civiclens.ui;
 
+import android.content.Context;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.example.civiclens.R;
+import com.example.civiclens.data.CommunityRepository;
 import com.example.civiclens.model.CivicPost;
 
 import java.util.ArrayList;
@@ -63,14 +65,36 @@ public class CivicPostAdapter extends RecyclerView.Adapter<CivicPostAdapter.View
             post.supportCount++;
             holder.btnSupport.setText("👍 Support (" + post.supportCount + ")");
             com.example.civiclens.accessibility.AccessibilityHelper.vibrateSuccess(v.getContext());
+            new CommunityRepository(v.getContext()).supportPost(post.id, null);
             Toast.makeText(v.getContext(), "👍 You supported this civic post!", Toast.LENGTH_SHORT).show();
         });
 
-        holder.btnComment.setOnClickListener(v ->
-                Toast.makeText(v.getContext(), "Opening comments thread...", Toast.LENGTH_SHORT).show());
+        holder.btnComment.setOnClickListener(v -> showCommentsDialog(v.getContext(), post, holder));
 
         holder.btnShare.setOnClickListener(v ->
                 IntentHelper.shareText(v.getContext(), post.content, "Share Civic Post"));
+    }
+
+    private void showCommentsDialog(Context context, CivicPost post, ViewHolder holder) {
+        com.google.android.material.textfield.TextInputEditText input =
+                new com.google.android.material.textfield.TextInputEditText(context);
+        input.setHint("Write a civic comment...");
+
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
+                .setTitle("💬 Comments — " + post.authorName)
+                .setMessage("Post: " + post.content + "\n\n• Citizen Activist: Verified ground report for this location.")
+                .setView(input)
+                .setPositiveButton("Post Comment", (dialog, which) -> {
+                    String comment = input.getText() == null ? "" : input.getText().toString().trim();
+                    if (!comment.isEmpty()) {
+                        post.commentCount++;
+                        holder.btnComment.setText("💬 Comment (" + post.commentCount + ")");
+                        new CommunityRepository(context).addCommentToPost(post.id, comment, null);
+                        com.example.civiclens.accessibility.AccessibilityHelper.notifyWithHaptic(context, "💬 Comment posted successfully!", false);
+                    }
+                })
+                .setNegativeButton("Close", null)
+                .show();
     }
 
     @Override

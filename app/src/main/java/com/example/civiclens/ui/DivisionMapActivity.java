@@ -36,6 +36,9 @@ public class DivisionMapActivity extends AppCompatActivity {
         findViewById(R.id.btnSylhet).setOnClickListener(v -> selectDivision("Sylhet Division", "• Districts: 4 Districts (Sylhet, Moulvibazar, Habiganj, Sunamganj)\n• Active Projects: Sylhet-Tamabil 4-Lane Highway & Flood Prevention Embankment\n• DC Office Email: dc.sylhet@mopa.gov.bd"));
         findViewById(R.id.btnKhulna).setOnClickListener(v -> selectDivision("Khulna Division", "• Districts: 10 Districts (Khulna, Bagerhat, Jessore, Kushtia, Satkhira)\n• Active Projects: Mongla Port Modernization & Dumuria Road\n• DC Office Email: dc.khulna@mopa.gov.bd"));
         findViewById(R.id.btnBarisal).setOnClickListener(v -> selectDivision("Barisal Division", "• Districts: 6 Districts (Barisal, Bhola, Jhalokathi, Patuakhali, Pirojpur)\n• Active Projects: Coastal Resilience & City Canal Re-Excavation\n• DC Office Email: dc.barisal@mopa.gov.bd"));
+        findViewById(R.id.btnRajshahi).setOnClickListener(v -> selectDivision("Rajshahi Division", "• Districts: 8 Districts (Rajshahi, Bogura, Pabna, Naogaon, Natore)\n• Active Projects: Bangabandhu Hi-Tech Park & Padma River Embankment\n• DC Office Email: dc.rajshahi@mopa.gov.bd"));
+        findViewById(R.id.btnRangpur).setOnClickListener(v -> selectDivision("Rangpur Division", "• Districts: 8 Districts (Rangpur, Dinajpur, Gaibandha, Kurigram, Lalmonirhat)\n• Active Projects: Teesta Barrage Expansion & Rural Electrification\n• DC Office Email: dc.rangpur@mopa.gov.bd"));
+        findViewById(R.id.btnMymensingh).setOnClickListener(v -> selectDivision("Mymensingh Division", "• Districts: 4 Districts (Mymensingh, Jamalpur, Netrokona, Sherpur)\n• Active Projects: Old Brahmaputra Riverbank Protection & Bypass Road\n• DC Office Email: dc.mymensingh@mopa.gov.bd"));
     }
 
     private void selectDivision(String name, String details) {

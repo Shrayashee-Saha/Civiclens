@@ -7,6 +7,7 @@ import android.os.Looper;
 import com.example.civiclens.firebase.FirebaseGate;
 import com.example.civiclens.model.CivicCommunity;
 import com.example.civiclens.model.CivicPost;
+import com.example.civiclens.model.GroupMessage;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -402,5 +403,100 @@ public class CommunityRepository {
                 deliver(callback, dao.getPostsByCategory(category));
             }
         });
+    }
+
+    public void supportPost(String postId, Runnable onDone) {
+        if (postId == null || postId.isEmpty()) return;
+        CivicDatabase.IO.execute(() -> {
+            List<CivicPost> all = dao.getAllPosts();
+            for (CivicPost p : all) {
+                if (p.id.equals(postId)) {
+                    p.supportCount++;
+                    dao.insertPost(p);
+                    if (root != null) {
+                        root.child("posts").child(postId).child("supportCount").setValue(p.supportCount);
+                    }
+                    break;
+                }
+            }
+            if (onDone != null) main.post(onDone);
+        });
+    }
+
+    public void addCommentToPost(String postId, String commentText, Runnable onDone) {
+        if (postId == null || commentText == null || commentText.trim().isEmpty()) return;
+        CivicDatabase.IO.execute(() -> {
+            List<CivicPost> all = dao.getAllPosts();
+            for (CivicPost p : all) {
+                if (p.id.equals(postId)) {
+                    p.commentCount++;
+                    dao.insertPost(p);
+                    if (root != null) {
+                        root.child("posts").child(postId).child("commentCount").setValue(p.commentCount);
+                        String commentId = UUID.randomUUID().toString();
+                        Map<String, Object> cData = new HashMap<>();
+                        cData.put("id", commentId);
+                        cData.put("text", commentText);
+                        cData.put("timestamp", System.currentTimeMillis());
+                        root.child("posts").child(postId).child("comments").child(commentId).setValue(cData);
+                    }
+                    break;
+                }
+            }
+            if (onDone != null) main.post(onDone);
+        });
+    }
+
+    public void sendGroupMessage(String groupId, String senderName, String text, Runnable onDone) {
+        if (groupId == null || text == null || text.trim().isEmpty()) return;
+        CivicDatabase.IO.execute(() -> {
+            GroupMessage m = new GroupMessage();
+            m.id = UUID.randomUUID().toString();
+            m.groupId = groupId;
+            m.senderName = senderName != null ? senderName : "Citizen Activist";
+            m.text = text.trim();
+            m.createdAt = System.currentTimeMillis();
+
+            dao.insertMessage(m);
+
+            if (root != null) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("id", m.id);
+                data.put("groupId", groupId);
+                data.put("senderName", m.senderName);
+                data.put("text", m.text);
+                data.put("createdAt", m.createdAt);
+                root.child("groups").child(groupId).child("messages").child(m.id).setValue(data);
+            }
+
+            if (onDone != null) main.post(onDone);
+        });
+    }
+
+    public ValueEventListener listenForGroupMessages(String groupId, Callback<List<GroupMessage>> callback) {
+        if (root == null || groupId == null) return null;
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                List<GroupMessage> list = new ArrayList<>();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    String sender = child.child("senderName").getValue(String.class);
+                    String text = child.child("text").getValue(String.class);
+                    if (text != null) {
+                        GroupMessage m = new GroupMessage();
+                        m.id = child.getKey();
+                        m.groupId = groupId;
+                        m.senderName = sender != null ? sender : "Citizen Activist";
+                        m.text = text;
+                        list.add(m);
+                    }
+                }
+                deliver(callback, list);
+            }
+
+            @Override public void onCancelled(DatabaseError error) { }
+        };
+        root.child("groups").child(groupId).child("messages").addValueEventListener(listener);
+        return listener;
     }
 }
