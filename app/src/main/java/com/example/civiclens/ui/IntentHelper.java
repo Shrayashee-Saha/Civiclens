@@ -121,14 +121,12 @@ public final class IntentHelper {
         }
     }
 
-    /** Universal Back Navigation Handler across all activities. */
+    /** Universal Back Navigation Handler: Always opens Home screen if not on Home screen. */
     public static void handleBackNavigation(androidx.appcompat.app.AppCompatActivity activity) {
         if (activity == null) return;
-        if (activity.isTaskRoot()) {
-            Intent parent = new Intent(activity, MainActivity.class);
-            parent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            activity.startActivity(parent);
-        }
+        Intent parent = new Intent(activity, MainActivity.class);
+        parent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        activity.startActivity(parent);
         activity.finish();
     }
 

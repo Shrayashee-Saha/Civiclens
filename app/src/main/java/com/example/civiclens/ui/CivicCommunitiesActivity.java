@@ -77,6 +77,12 @@ public class CivicCommunitiesActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        loadCommunities();
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         String uid = com.google.firebase.auth.FirebaseAuth.getInstance().getUid();

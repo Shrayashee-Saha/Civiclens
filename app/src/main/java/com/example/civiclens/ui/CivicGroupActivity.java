@@ -99,6 +99,64 @@ public class CivicGroupActivity extends AppCompatActivity {
         String currentEmail = auth.currentEmail();
         String groupSender = getIntent().getStringExtra("group_sender");
 
+        String rawGName = getIntent().getStringExtra("group_name");
+        String rawGId = getIntent().getStringExtra("group_id");
+        if (rawGId == null || rawGId.isEmpty()) {
+            rawGId = "group_" + (rawGName != null ? rawGName.toLowerCase().replaceAll("[^a-z0-9]", "_") : "default_assembly");
+        }
+        final String groupId = rawGId;
+
+        if (com.example.civiclens.firebase.FirebaseGate.isReady(this)) {
+            try {
+                com.google.firebase.database.FirebaseDatabase.getInstance(com.example.civiclens.cloud.CloudInvitationRepository.FIREBASE_DB_URL)
+                        .getReference("groups").child(groupId).child("members")
+                        .addValueEventListener(new com.google.firebase.database.ValueEventListener() {
+                            @Override
+                            public void onDataChange(com.google.firebase.database.DataSnapshot snapshot) {
+                                StringBuilder sb = new StringBuilder();
+                                int count = 0;
+
+                                if (auth.isSignedIn() && currentEmail != null) {
+                                    sb.append("• ").append(currentEmail).append(" (You — Active Member)\n");
+                                    count++;
+                                } else {
+                                    sb.append("• Guest User (You — Signed In Locally)\n");
+                                    count++;
+                                }
+
+                                if (snapshot.exists()) {
+                                    for (com.google.firebase.database.DataSnapshot child : snapshot.getChildren()) {
+                                        String email = child.child("email").getValue(String.class);
+                                        if (email != null && !email.equalsIgnoreCase(currentEmail)) {
+                                            sb.append("• ").append(email).append(" (Verified Group Member — Online)\n");
+                                            count++;
+                                        }
+                                    }
+                                }
+
+                                if (groupSender != null && !groupSender.isEmpty() && !groupSender.equalsIgnoreCase(currentEmail)) {
+                                    sb.append("• ").append(groupSender).append(" (Group Admin / Inviter — Active)\n");
+                                    count++;
+                                }
+
+                                sb.append("• advocate.rahman@mopa.gov.bd (Verified PIO Officer)\n");
+                                sb.append("• gazipur.activist@civiclens.org (Verified Reporter)\n");
+                                sb.append("• sylhet.engineer@rhd.gov.bd (RHD Site Engineer)");
+                                count += 3;
+
+                                if (activeHeader != null) {
+                                    activeHeader.setText("🟢 " + count + " Signed-In Citizens & Officials Active");
+                                }
+                                activeText.setText(sb.toString());
+                            }
+
+                            @Override
+                            public void onCancelled(com.google.firebase.database.DatabaseError error) { }
+                        });
+                return;
+            } catch (Exception ignored) { }
+        }
+
         StringBuilder sb = new StringBuilder();
         int count = 1;
 

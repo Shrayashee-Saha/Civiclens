@@ -220,8 +220,11 @@ public class CommunityRepository {
         CivicDatabase.IO.execute(() -> {
             List<CivicCommunity> all = dao.getAllCommunities();
             boolean found = false;
+            String cleanTarget = name.trim().toLowerCase();
+
             for (CivicCommunity c : all) {
-                if (c.name.equalsIgnoreCase(name.trim())) {
+                String cleanExisting = c.name.trim().toLowerCase();
+                if (cleanExisting.equals(cleanTarget) || cleanExisting.contains(cleanTarget) || cleanTarget.contains(cleanExisting)) {
                     if (!c.isMember) {
                         c.isMember = true;
                         c.memberCount++;

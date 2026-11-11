@@ -113,11 +113,10 @@ public class MainActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (bottomNav.getSelectedItemId() != R.id.nav_home) {
+                if (bottomNav != null && bottomNav.getSelectedItemId() != R.id.nav_home) {
                     bottomNav.setSelectedItemId(R.id.nav_home);
                 } else {
-                    setEnabled(false);
-                    getOnBackPressedDispatcher().onBackPressed();
+                    finish();
                 }
             }
         });

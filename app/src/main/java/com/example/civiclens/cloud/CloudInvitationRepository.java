@@ -29,7 +29,7 @@ public class CloudInvitationRepository {
 
     public static final String FIREBASE_DB_URL = "https://civiclens-e2000-default-rtdb.asia-southeast1.firebasedatabase.app";
 
-    /** Sends invitation payload to Firebase Cloud to notify target device. */
+    /** Sends invitation payload to Firebase Cloud & HTTP Relay to notify target device. */
     public static void sendInvitation(Context context, String senderEmail, String targetEmail, String groupName) {
         if (context == null || targetEmail == null || targetEmail.trim().isEmpty()) return;
 
@@ -48,14 +48,14 @@ public class CloudInvitationRepository {
                 payload.put("timestamp", System.currentTimeMillis());
 
                 ref.child(targetKey).child(invId).setValue(payload);
-                ref.child("live_stream").child(invId).setValue(payload)
+                ref.child("global_feed").child(invId).setValue(payload)
                         .addOnSuccessListener(aVoid -> {
                             new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
-                                    android.widget.Toast.makeText(context, "☁️ Cloud Sync: Invitation dispatched to " + targetEmail + "!", android.widget.Toast.LENGTH_SHORT).show());
+                                    android.widget.Toast.makeText(context, "☁️ Firebase Cloud Sync: Invitation delivered to cloud!", android.widget.Toast.LENGTH_SHORT).show());
                         })
                         .addOnFailureListener(e -> {
                             new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
-                                    android.widget.Toast.makeText(context, "⚠ Firebase Cloud Error: " + e.getLocalizedMessage(), android.widget.Toast.LENGTH_LONG).show());
+                                    android.widget.Toast.makeText(context, "⚠ Firebase Cloud Error: " + e.getLocalizedMessage() + ". Please publish rules in Firebase Console.", android.widget.Toast.LENGTH_LONG).show());
                         });
             } catch (Exception ignored) { }
         }
@@ -73,7 +73,7 @@ public class CloudInvitationRepository {
 
             if (activeChildListener != null) {
                 try {
-                    ref.child("live_stream").removeEventListener(activeChildListener);
+                    ref.child("global_feed").removeEventListener(activeChildListener);
                     ref.child(myKey).removeEventListener(activeChildListener);
                 } catch (Exception ignored) { }
             }
@@ -94,9 +94,9 @@ public class CloudInvitationRepository {
                         // 2. Verify target recipient match
                         boolean isTargetForMe = false;
                         if (myEmail == null || myEmail.trim().isEmpty() || "general_citizen".equals(myKey)) {
-                            isTargetForMe = true; // Guest mode receives live alerts
+                            isTargetForMe = true; // Guest mode receives alerts
                         } else if (targetEmail != null && (targetEmail.trim().equalsIgnoreCase(myEmail.trim()) || cleanEmailKey(targetEmail).equals(myKey))) {
-                            isTargetForMe = true; // Direct email match
+                            isTargetForMe = true; // Direct recipient email match
                         }
 
                         if (isTargetForMe && groupName != null) {
@@ -115,10 +115,8 @@ public class CloudInvitationRepository {
                 @Override public void onCancelled(DatabaseError error) { }
             };
 
-            ref.child(myKey).keepSynced(true);
-            ref.child(myKey).limitToLast(5).addChildEventListener(activeChildListener);
-            ref.child("live_stream").keepSynced(true);
-            ref.child("live_stream").limitToLast(5).addChildEventListener(activeChildListener);
+            ref.child("global_feed").limitToLast(10).addChildEventListener(activeChildListener);
+            ref.child(myKey).limitToLast(10).addChildEventListener(activeChildListener);
         } catch (Exception ignored) { }
     }
 
